@@ -1,0 +1,275 @@
+.container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+  min-height: 50vh;
+}
+
+.layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.formSection {
+  flex: 1;
+  background: var(--bg-white);
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.formHeader {
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-dark);
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.formHeader strong {
+  color: red;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--text-dark);
+}
+
+.formGroup input[type="text"],
+.formGroup input[type="tel"] {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fafafa;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #aaa;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radioOption {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-radius: 4px;
+  background-color: #ced4da;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid #ced4da;
+  margin-bottom: 2px;
+  color: #000000;
+  position: relative;
+}
+
+.activeRadio {
+  background-color: #008000;
+  color: #ffffff !important;
+  border-color: #008000;
+}
+
+.hiddenRadio {
+  display: none;
+}
+
+.customRadio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  background-color: #ffffff; /* Default: white circle */
+  margin-right: 15px;
+  flex-shrink: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.activeRadio .customRadio {
+  background-color: transparent; /* Ring for active */
+}
+
+.activeRadio .customRadio::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  background-color: #ffffff;
+  border-radius: 50%;
+}
+
+.radioText {
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: inherit;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 15px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: opacity 0.2s;
+}
+
+.submitBtn:hover {
+  opacity: 0.9;
+}
+
+.summarySection {
+  flex: 1;
+  background: var(--bg-white);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.summaryTable {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.tableHeader {
+  display: flex;
+  font-weight: 600;
+  font-size: 13px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-dark);
+}
+
+.tableBody {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.tableRow {
+  display: flex;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px dashed var(--border-color);
+  font-size: 13px;
+}
+
+.colProduct { flex: 4; display: flex; align-items: center; gap: 10px; }
+.colPrice { flex: 2; text-align: left; }
+.colQty { flex: 2; text-align: center; }
+.colTotal { flex: 2; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+
+.itemImage {
+  width: 40px;
+  height: 40px;
+  background-size: cover;
+  background-position: center;
+  background-color: #eee;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.qtyControls {
+  display: inline-flex;
+  align-items: center;
+  background-color: #0d6efd;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #0d6efd;
+}
+
+.qtyControls button {
+  width: 28px;
+  height: 28px;
+  background-color: transparent;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qtyControls button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.qtyControls span {
+  width: 32px;
+  height: 28px;
+  text-align: center;
+  background-color: white;
+  color: black;
+  font-weight: 600;
+  line-height: 28px;
+  font-size: 14px;
+}
+
+.removeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.removeBtn:hover {
+  opacity: 0.7;
+}
+
+.totals {
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.totalsRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-gray);
+}
+
+.finalTotal {
+  font-weight: bold;
+  color: red;
+  font-size: 15px;
+  margin-top: 5px;
+}
+
+@media (max-width: 992px) {
+  .layout {
+    flex-direction: column;
+  }
+  .formSection, .summarySection {
+    width: 100%;
+  }
+}

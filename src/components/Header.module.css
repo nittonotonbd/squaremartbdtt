@@ -1,0 +1,105 @@
+.header {
+  width: 100%;
+  background-color: var(--bg-white);
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topBar {
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 12px;
+  padding: 5px 0;
+}
+
+.topBarContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.mainHeader {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.logo h1 {
+  color: var(--primary-color);
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.searchContainer {
+  display: flex;
+  flex: 1;
+  max-width: 500px;
+  margin: 0 40px;
+  border: 2px solid var(--primary-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 10px 15px;
+  border: none;
+  outline: none;
+  font-size: 14px;
+}
+
+.searchButton {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0 20px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.searchButton:hover {
+  background-color: var(--primary-hover);
+}
+
+.cartContainer {
+  position: relative;
+  cursor: pointer;
+}
+
+.cartIcon {
+  font-size: 28px;
+  color: var(--text-dark);
+}
+
+.cartBadge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .searchContainer {
+    display: none;
+  }
+}
