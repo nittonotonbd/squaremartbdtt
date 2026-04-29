@@ -66,43 +66,53 @@
 }
 
 .radioOption {
-  display: flex;
-  align-items: center;
-  padding: 12px 20px;
-  border-radius: 4px;
-  background-color: #ced4da;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background-color: #f8f9fa;
   cursor: pointer;
   transition: all 0.2s;
-  border: 1px solid #ced4da;
-  margin-bottom: 2px;
-  color: #000000;
+  border: 1.5px solid #e9ecef;
+  margin-bottom: 10px;
+  color: var(--text-dark);
   position: relative;
+  white-space: nowrap !important;
+  flex-wrap: nowrap !important;
 }
 
 .activeRadio {
-  background-color: #008000;
+  background-color: #008000 !important;
   color: #ffffff !important;
-  border-color: #008000;
+  border-color: #008000 !important;
 }
 
 .hiddenRadio {
-  display: none;
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }
 
 .customRadio {
-  width: 18px;
-  height: 18px;
-  border: 2px solid #ffffff;
+  width: 22px;
+  height: 22px;
+  border: 2px solid #adb5bd;
   border-radius: 50%;
-  background-color: #ffffff; /* Default: white circle */
-  margin-right: 15px;
-  flex-shrink: 0;
+  background-color: #ffffff;
+  margin-right: 14px !important;
+  flex-shrink: 0 !important;
   position: relative;
-  display: inline-block;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 .activeRadio .customRadio {
-  background-color: transparent; /* Ring for active */
+  border-color: #ffffff !important;
+  background-color: transparent !important;
 }
 
 .activeRadio .customRadio::after {
@@ -111,17 +121,19 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   background-color: #ffffff;
   border-radius: 50%;
 }
 
 .radioText {
   font-size: 15px;
-  font-weight: 500;
-  white-space: nowrap;
+  font-weight: 600;
+  white-space: nowrap !important;
   color: inherit;
+  line-height: 1 !important;
+  display: inline-block !important;
 }
 
 .submitBtn {
