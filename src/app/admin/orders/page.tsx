@@ -23,6 +23,31 @@ import {
 import styles from '../Admin.module.css';
 import StatCard from '../../../components/admin/StatCard';
 import { Dollar01Icon, ShoppingBagIcon } from '@hugeicons/core-free-icons';
+import { supabase } from '../../../lib/supabase';
+
+interface OrderItem {
+  id: number;
+  product_title: string;
+  quantity: number;
+  price: number;
+  image_url: string;
+}
+
+interface Order {
+  id: string;
+  customer_name: string;
+  customer_phone: string;
+  address: string;
+  notes: string;
+  amount: string;
+  status: string;
+  payment_status: string;
+  date: string;
+  total: number;
+  shipping_cost: number;
+  items?: OrderItem[];
+}
+
 
 const mockOrders = [
   { id: '#ORD-7342', customer: 'Alex Johnson', date: '2024-04-29', amount: '৳2,450', status: 'Delivered', payment: 'Paid' },
@@ -47,14 +72,88 @@ const getStatusClass = (status: string) => {
 
 const AdminOrdersPage: React.FC = () => {
   const searchParams = useSearchParams();
-  const [orders, setOrders] = React.useState(mockOrders);
+  const [orders, setOrders] = React.useState<Order[]>([]);
+  const [loading, setLoading] = React.useState(true);
   const [filterStatus, setFilterStatus] = React.useState<string>('All');
   const [searchQuery, setSearchQuery] = React.useState<string>(searchParams.get('q') || '');
-  const [selectedOrder, setSelectedOrder] = React.useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = React.useState<string>('');
   const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
 
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const formattedOrders: Order[] = data.map(o => ({
+        id: `#ORD-${o.id}`,
+        customer_name: o.customer_name,
+        customer_phone: o.customer_phone,
+        address: o.address,
+        notes: o.notes,
+        amount: `৳${o.total}`,
+        status: o.status,
+        payment_status: o.payment_status,
+        date: new Date(o.created_at).toISOString().split('T')[0],
+        total: o.total,
+        shipping_cost: o.shipping_cost
+      }));
+
+      setOrders(formattedOrders);
+      return formattedOrders;
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      return [];
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    const init = async () => {
+      const allOrders = await fetchOrders();
+      const orderId = searchParams.get('id');
+      if (orderId && allOrders) {
+        const order = allOrders.find(o => o.id === `#ORD-${orderId}`);
+        if (order) {
+          openOrderDetail(order);
+        }
+      }
+    };
+    init();
+  }, [searchParams]);
+
+
+  const openOrderDetail = async (order: Order) => {
+    setSelectedOrder(order);
+    try {
+      const orderId = order.id.replace('#ORD-', '');
+      const { data: items, error } = await supabase
+        .from('order_items')
+        .select('*')
+        .eq('order_id', orderId);
+
+      if (error) throw error;
+
+      setSelectedOrder(prev => prev ? { ...prev, items } : null);
+    } catch (error) {
+      console.error('Error fetching order items:', error);
+    }
+  };
+
+
+  const pendingOrdersCount = orders.filter(o => o.status === 'Pending').length;
+  const completedOrdersCount = orders.filter(o => o.status === 'Delivered').length;
+  const totalRevenue = orders.reduce((acc, o) => acc + (o.status !== 'Cancelled' ? o.total : 0), 0);
+
   // Sync search with URL
+
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
   }, [searchParams]);
@@ -69,36 +168,63 @@ const AdminOrdersPage: React.FC = () => {
   const filteredOrders = orders.filter(order => {
     const matchesStatus = filterStatus === 'All' || order.status === filterStatus;
     const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         order.customer.toLowerCase().includes(searchQuery.toLowerCase());
+                         order.customer_name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
   });
+
 
   const closeOrderDetail = () => {
     setSelectedOrder(null);
     setUpdatingStatus('');
   };
 
-  const handleStatusUpdate = () => {
+  const handleStatusUpdate = async () => {
     if (!selectedOrder || !updatingStatus) return;
     
-    const updatedOrders = orders.map(order => 
-      order.id === selectedOrder.id ? { ...order, status: updatingStatus } : order
-    );
-    
-    setOrders(updatedOrders);
-    setSelectedOrder({ ...selectedOrder, status: updatingStatus });
-    alert(`Order ${selectedOrder.id} status updated to ${updatingStatus}`);
-  };
+    try {
+      const orderId = selectedOrder.id.replace('#ORD-', '');
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: updatingStatus })
+        .eq('id', orderId);
 
-  const handleCancelOrder = (id: string) => {
-    if (confirm(`Are you sure you want to cancel order ${id}?`)) {
-      const updatedOrders = orders.map(order => 
-        order.id === id ? { ...order, status: 'Cancelled' } : order
-      );
-      setOrders(updatedOrders);
-      alert(`Order ${id} has been cancelled.`);
+      if (error) throw error;
+
+      setOrders(prev => prev.map(order => 
+        order.id === selectedOrder.id ? { ...order, status: updatingStatus } : order
+      ));
+      
+      setSelectedOrder(prev => prev ? { ...prev, status: updatingStatus } : null);
+      alert(`Order ${selectedOrder.id} status updated to ${updatingStatus}`);
+    } catch (error) {
+      console.error('Error updating status:', error);
+      alert('Failed to update status.');
     }
   };
+
+
+  const handleCancelOrder = async (id: string) => {
+    if (confirm(`Are you sure you want to cancel order ${id}?`)) {
+      try {
+        const orderId = id.replace('#ORD-', '');
+        const { error } = await supabase
+          .from('orders')
+          .update({ status: 'Cancelled' })
+          .eq('id', orderId);
+
+        if (error) throw error;
+
+        setOrders(prev => prev.map(order => 
+          order.id === id ? { ...order, status: 'Cancelled' } : order
+        ));
+        alert(`Order ${id} has been cancelled.`);
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        alert('Failed to cancel order.');
+      }
+    }
+  };
+
 
   const handlePrintInvoice = (order: any) => {
     const invoiceWindow = window.open('', '_blank', 'width=800,height=900');
@@ -135,16 +261,16 @@ const AdminOrdersPage: React.FC = () => {
           <div class="details">
             <div>
               <h4 style="color: #666; margin-bottom: 10px;">BILL TO:</h4>
-              <p><strong>${order.customer}</strong></p>
-              <p>123 Green Road, Dhanmondi</p>
-              <p>Dhaka, Bangladesh</p>
-              <p>Phone: +880 1712-345678</p>
+              <p><strong>${order.customer_name}</strong></p>
+              <p>${order.address || 'N/A'}</p>
+              <p>Phone: ${order.customer_phone}</p>
             </div>
             <div style="text-align: right;">
               <h4 style="color: #666; margin-bottom: 10px;">PAYMENT:</h4>
               <p>Method: Online Payment</p>
-              <p>Status: ${order.payment}</p>
+              <p>Status: ${order.payment_status}</p>
             </div>
+
           </div>
           <table class="table">
             <thead>
@@ -193,12 +319,13 @@ const AdminOrdersPage: React.FC = () => {
     // Format rows
     const rows = filteredOrders.map(order => [
       order.id,
-      order.customer,
+      order.customer_name,
       order.date,
-      order.amount.replace('৳', ''), // Remove currency symbol for Excel
-      order.payment,
+      order.total.toString(),
+      order.payment_status,
       order.status
     ]);
+
 
     // Combine headers and rows
     const csvContent = [
@@ -234,21 +361,20 @@ const AdminOrdersPage: React.FC = () => {
                 <div className={styles.detailsGrid} style={{ flex: 1, marginBottom: 0 }}>
                   <div className={styles.detailItem}>
                     <h4>Customer Info</h4>
-                    <p>{selectedOrder.customer}</p>
-                    <p style={{ fontWeight: '400', fontSize: '14px', color: 'var(--text-gray)' }}>alex.johnson@example.com</p>
-                    <p style={{ fontWeight: '400', fontSize: '14px', color: 'var(--text-gray)' }}>+880 1712-345678</p>
+                    <p>{selectedOrder.customer_name}</p>
+                    <p style={{ fontWeight: '400', fontSize: '14px', color: 'var(--text-gray)' }}>{selectedOrder.customer_phone}</p>
                   </div>
                   <div className={styles.detailItem}>
                     <h4>Shipping Address</h4>
                     <p style={{ fontWeight: '400', fontSize: '14px' }}>
-                      123 Green Road, Dhanmondi<br />
-                      Dhaka, Bangladesh
+                      {selectedOrder.address || 'No address provided'}
                     </p>
                   </div>
                   <div className={styles.detailItem}>
                     <h4>Payment Status</h4>
-                    <p>{selectedOrder.payment}</p>
+                    <p>{selectedOrder.payment_status}</p>
                   </div>
+
                   <div className={styles.detailItem}>
                     <h4>Order Status</h4>
                     <span className={`${styles.status} ${getStatusClass(selectedOrder.status)}`}>
@@ -271,20 +397,25 @@ const AdminOrdersPage: React.FC = () => {
 
               <div className={styles.orderItemsTable}>
                 <h4 style={{ fontSize: '13px', color: 'var(--text-light)', marginBottom: '16px' }}>ORDER ITEMS</h4>
-                <div className={styles.itemRow}>
-                  <div className={styles.itemInfo}>
-                    <div className={styles.productThumb} style={{ width: '50px', height: '50px' }}></div>
-                    <div className={styles.itemDetails}>
-                      <span className={styles.itemName}>Premium Wireless Headphones</span>
-                      <span className={styles.itemMeta}>Color: Black | SKU: HE-001</span>
+                {selectedOrder.items?.map((item: any) => (
+                  <div key={item.id} className={styles.itemRow}>
+                    <div className={styles.itemInfo}>
+                      <div 
+                        className={styles.productThumb} 
+                        style={{ width: '50px', height: '50px', backgroundImage: `url(${item.image_url})`, backgroundSize: 'cover' }}
+                      ></div>
+                      <div className={styles.itemDetails}>
+                        <span className={styles.itemName}>{item.product_title}</span>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontWeight: '600' }}>৳{item.price}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-gray)' }}>Qty: {item.quantity}</div>
                     </div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: '600' }}>৳2,450</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-gray)' }}>Qty: 1</div>
-                  </div>
-                </div>
+                ))}
               </div>
+
 
               <div className={styles.summarySection}>
                 <div className={styles.summaryRow}>
@@ -293,8 +424,9 @@ const AdminOrdersPage: React.FC = () => {
                 </div>
                 <div className={styles.summaryRow}>
                   <span>Shipping Fee</span>
-                  <span>৳60</span>
+                  <span>৳{selectedOrder.shipping_cost}</span>
                 </div>
+
                 <div className={styles.summaryRow}>
                   <span>Discount</span>
                   <span style={{ color: '#ef4444' }}>-৳0</span>
@@ -364,31 +496,32 @@ const AdminOrdersPage: React.FC = () => {
       <div className={styles.statsGrid}>
         <StatCard 
           label="Pending Orders" 
-          value="1" 
+          value={pendingOrdersCount.toString()} 
           icon={Clock01Icon} 
-          trend="+2" 
+          trend="" 
           trendUp={true} 
           color="#f59e0b" 
           onClick={() => setFilterStatus('Pending')}
         />
         <StatCard 
           label="Completed Orders" 
-          value="1,120" 
+          value={completedOrdersCount.toString()} 
           icon={Tick02Icon} 
-          trend="+45" 
+          trend="" 
           trendUp={true} 
           color="#10b981" 
           onClick={() => setFilterStatus('Delivered')}
         />
         <StatCard 
           label="Total Revenue" 
-          value="৳42,890" 
+          value={`৳${totalRevenue.toLocaleString()}`} 
           icon={Dollar01Icon} 
-          trend="+12%" 
+          trend="" 
           trendUp={true} 
           color="#ff5a00" 
         />
       </div>
+
 
       <div className={styles.filterBar}>
         <div className={styles.searchContainer}>
@@ -438,21 +571,27 @@ const AdminOrdersPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredOrders.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>Loading orders...</td>
+                </tr>
+              ) : filteredOrders.length > 0 ? (
                 filteredOrders.map((order) => (
+
                   <tr key={order.id}>
                     <td 
                       style={{ fontWeight: '600', color: 'var(--primary-color)', cursor: 'pointer' }}
-                      onClick={() => setSelectedOrder(order)}
+                      onClick={() => openOrderDetail(order)}
                     >
                       {order.id}
                     </td>
-                    <td>{order.customer}</td>
+                    <td>{order.customer_name}</td>
                     <td>{order.date}</td>
                     <td>{order.amount}</td>
                     <td>
-                      <span style={{ fontSize: '13px', fontWeight: '500' }}>{order.payment}</span>
+                      <span style={{ fontSize: '13px', fontWeight: '500' }}>{order.payment_status}</span>
                     </td>
+
                     <td>
                       <span className={`${styles.status} ${getStatusClass(order.status)}`}>
                         {order.status}
@@ -463,10 +602,11 @@ const AdminOrdersPage: React.FC = () => {
                         <button 
                           className={styles.actionBtn} 
                           title="View Details"
-                          onClick={() => setSelectedOrder(order)}
+                          onClick={() => openOrderDetail(order)}
                         >
                           <HugeiconsIcon icon={ViewIcon} size={18} />
                         </button>
+
                         <button 
                           className={styles.actionBtn} 
                           title="More Actions"
@@ -480,16 +620,17 @@ const AdminOrdersPage: React.FC = () => {
 
                         {activeMenu === order.id && (
                           <div className={styles.actionDropdown} onClick={(e) => e.stopPropagation()}>
-                            <button 
-                              className={styles.actionDropdownItem}
-                              onClick={() => {
-                                setSelectedOrder(order);
-                                setActiveMenu(null);
-                              }}
-                            >
-                              <HugeiconsIcon icon={Edit01Icon} size={16} />
-                              <span>Edit Order</span>
-                            </button>
+                             <button 
+                               className={styles.actionDropdownItem}
+                               onClick={() => {
+                                 openOrderDetail(order);
+                                 setActiveMenu(null);
+                               }}
+                             >
+                               <HugeiconsIcon icon={Edit01Icon} size={16} />
+                               <span>Edit Order</span>
+                             </button>
+
                             <button 
                               className={styles.actionDropdownItem}
                               onClick={() => {
@@ -527,12 +668,75 @@ const AdminOrdersPage: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile Order List */}
+        <div className={styles.mobileOrderList}>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '40px' }}>Loading orders...</div>
+          ) : filteredOrders.length > 0 ? (
+            filteredOrders.map((order) => (
+              <div key={order.id} className={styles.orderCard}>
+                <div className={styles.orderCardHeader}>
+                  <div>
+                    <div className={styles.orderCardId} onClick={() => openOrderDetail(order)}>{order.id}</div>
+                    <div className={styles.orderCardDate}>{order.date}</div>
+                  </div>
+                  <span className={`${styles.status} ${getStatusClass(order.status)}`}>
+                    {order.status}
+                  </span>
+                </div>
+                
+                <div className={styles.orderCardBody}>
+                  <div className={styles.orderCardItem}>
+                    <h4>Customer</h4>
+                    <p>{order.customer_name}</p>
+                  </div>
+                  <div className={styles.orderCardItem}>
+                    <h4>Amount</h4>
+                    <p>{order.amount}</p>
+                  </div>
+                  <div className={styles.orderCardItem}>
+                    <h4>Payment</h4>
+                    <p style={{ fontSize: '13px' }}>{order.payment_status}</p>
+                  </div>
+                </div>
+
+                <div className={styles.orderCardActions}>
+                  <button className={styles.mobileActionBtn} onClick={() => openOrderDetail(order)}>
+                    <HugeiconsIcon icon={ViewIcon} size={16} />
+                    <span>View</span>
+                  </button>
+                  <button 
+                    className={styles.mobileActionBtn}
+                    onClick={() => {
+                      handlePrintInvoice(order);
+                    }}
+                  >
+                    <HugeiconsIcon icon={PrinterIcon} size={16} />
+                    <span>Invoice</span>
+                  </button>
+                  <button 
+                    className={`${styles.mobileActionBtn} ${styles.actionDropdownItemDanger}`}
+                    onClick={() => handleCancelOrder(order.id)}
+                  >
+                    <HugeiconsIcon icon={Delete02Icon} size={16} />
+                    <span>Cancel</span>
+                  </button>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-gray)' }}>
+              No {filterStatus} orders found.
+            </div>
+          )}
+        </div>
         
-        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className={styles.pagination}>
           <p style={{ color: 'var(--text-gray)', fontSize: '14px' }}>
             Showing {filteredOrders.length} of {orders.length} orders
           </p>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div className={styles.paginationActions}>
             <button className={styles.select} disabled>Previous</button>
             <button className={styles.select} style={{ backgroundColor: 'var(--primary-color)', color: 'white', borderColor: 'var(--primary-color)' }}>1</button>
             <button className={styles.select}>Next</button>

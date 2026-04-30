@@ -17,29 +17,105 @@ import styles from './Admin.module.css';
 import Link from 'next/link';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { supabase } from '../../lib/supabase';
 
-const mockRecentOrders = [
-  { id: '#ORD-7342', customer: 'Alex Johnson', product: 'Premium Wireless Headphones', amount: '$299.00', status: 'Delivered' },
-  { id: '#ORD-7341', customer: 'Sarah Miller', product: 'Smart Watch Series 5', amount: '$199.00', status: 'Processing' },
-  { id: '#ORD-7340', customer: 'James Wilson', product: 'Leather Laptop Bag', amount: '$149.00', status: 'Delivered' },
-  { id: '#ORD-7339', customer: 'Emily Brown', product: 'Mechanical Keyboard', amount: '$129.00', status: 'Processing' },
-  { id: '#ORD-7338', customer: 'Michael Chen', product: 'USB-C Docking Station', amount: '$89.00', status: 'Delivered' },
-];
+
+interface RecentOrder {
+  id: string;
+  customer_name: string;
+  product: string;
+  amount: string;
+  status: string;
+}
+
 
 const AdminDashboard: React.FC = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
+
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    revenue: 0,
+    orders: 0,
+    products: 0,
+    views: 45210 // Placeholder
+  });
+  const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      // 1. Fetch Orders and Statistics
+      const { data: orders, error: ordersError } = await supabase
+        .from('orders')
+        .select('id, customer_name, total, status, created_at')
+        .order('created_at', { ascending: false });
+
+      if (ordersError) throw ordersError;
+
+      // 2. Fetch Products Count
+      const { count: productCount, error: productError } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true });
+
+      if (productError) throw productError;
+
+      // Calculate stats
+      const revenue = orders.reduce((acc, o) => acc + (o.status !== 'Cancelled' ? o.total : 0), 0);
+      
+      setStats({
+        revenue,
+        orders: orders.length,
+        products: productCount || 0,
+        views: 45210
+      });
+
+      // Format recent orders
+      const formattedRecent: RecentOrder[] = orders.slice(0, 5).map(o => ({
+        id: `#ORD-${o.id}`,
+        customer_name: o.customer_name,
+        product: 'N/A', // We'd need to fetch order_items to get first product
+        amount: `৳${o.total.toLocaleString()}`,
+        status: o.status
+      }));
+
+      // Fetch first product for each recent order
+      const { data: items, error: itemsError } = await supabase
+        .from('order_items')
+        .select('order_id, product_title')
+        .in('order_id', orders.slice(0, 5).map(o => o.id));
+
+      if (!itemsError && items) {
+        formattedRecent.forEach(ro => {
+          const item = items.find(i => `#ORD-${i.order_id}` === ro.id);
+          if (item) ro.product = item.product_title;
+        });
+      }
+
+      setRecentOrders(formattedRecent);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   // Sync search with URL
   useEffect(() => {
     setSearchQuery(searchParams.get('q') || '');
   }, [searchParams]);
 
-  const filteredOrders = mockRecentOrders.filter(order => 
+  const filteredOrders = recentOrders.filter(order => 
     order.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    order.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     order.product.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
 
   return (
     <AdminLayout>
@@ -59,37 +135,38 @@ const AdminDashboard: React.FC = () => {
       <div className={styles.statsGrid}>
         <StatCard 
           label="Total Revenue" 
-          value="$128,430" 
+          value={`৳${stats.revenue.toLocaleString()}`} 
           icon={Dollar01Icon} 
-          trend="+12.5%" 
+          trend="" 
           trendUp={true} 
           color="#ff5a00" 
         />
         <StatCard 
           label="Total Orders" 
-          value="1,420" 
+          value={stats.orders.toString()} 
           icon={ShoppingBag01Icon} 
-          trend="+8.2%" 
+          trend="" 
           trendUp={true} 
           color="#3b82f6" 
         />
         <StatCard 
-          label="Total Users" 
-          value="8,920" 
-          icon={UserGroupIcon} 
-          trend="+5.1%" 
+          label="Total Products" 
+          value={stats.products.toString()} 
+          icon={ShoppingBag01Icon} 
+          trend="" 
           trendUp={true} 
           color="#10b981" 
         />
         <StatCard 
           label="Product Views" 
-          value="45,210" 
+          value={stats.views.toLocaleString()} 
           icon={ViewIcon} 
-          trend="-2.4%" 
-          trendUp={false} 
+          trend="" 
+          trendUp={true} 
           color="#8b5cf6" 
         />
       </div>
+
 
       <div className={styles.dashboardGrid}>
         <section className={styles.section} style={{ flex: 2 }}>
@@ -127,9 +204,14 @@ const AdminDashboard: React.FC = () => {
               <tbody>
                 {filteredOrders.length > 0 ? (
                   filteredOrders.map(order => (
-                    <tr key={order.id}>
+                    <tr 
+                      key={order.id} 
+                      onClick={() => router.push(`/admin/orders?id=${order.id.replace('#ORD-', '')}`)}
+                      style={{ cursor: 'pointer' }}
+                      className={styles.hoverRow}
+                    >
                       <td style={{ fontWeight: '600', color: 'var(--primary-color)' }}>{order.id}</td>
-                      <td>{order.customer}</td>
+                      <td>{order.customer_name}</td>
                       <td>{order.product}</td>
                       <td>{order.amount}</td>
                       <td>

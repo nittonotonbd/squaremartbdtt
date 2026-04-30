@@ -9,7 +9,8 @@ import ProductGrid from '../../../components/ProductGrid';
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const productId = parseInt(resolvedParams.id, 10);
-  const product = getProductById(productId);
+  const product = await getProductById(productId);
+
 
   if (!product) {
     notFound();

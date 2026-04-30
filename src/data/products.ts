@@ -1,3 +1,5 @@
+import { supabase } from '../lib/supabase';
+
 export interface Product {
   id: number;
   title: string;
@@ -58,10 +60,57 @@ export const mockProducts: Product[] = [
   { id: 10, title: 'Universal Shower Bracket', price: 250, imageUrl: '/images/products/shower_bracket.png', stockStatus: 'In Stock' }
 ];
 
-export function getProductById(id: number): Product | undefined {
-  return mockProducts.find(p => p.id === id);
+export async function getProducts(): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching products:', error);
+    return mockProducts; // Fallback
+  }
+
+  return data.map(p => ({
+    id: p.id,
+    title: p.title,
+    price: p.price,
+    originalPrice: p.original_price,
+    imageUrl: p.image_url,
+    galleryImages: p.gallery_images,
+    description: p.description,
+    stockStatus: p.stock_status,
+    callToOrder: p.call_to_order
+  }));
+}
+
+export async function getProductById(id: number): Promise<Product | undefined> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    console.error('Error fetching product:', error);
+    return mockProducts.find(p => p.id === id);
+  }
+
+  return {
+    id: data.id,
+    title: data.title,
+    price: data.price,
+    originalPrice: data.original_price,
+    imageUrl: data.image_url,
+    galleryImages: data.gallery_images,
+    description: data.description,
+    stockStatus: data.stock_status,
+    callToOrder: data.call_to_order
+  };
 }
 
 export function getRelatedProducts(currentId: number, limit: number = 4): Product[] {
+  // This could also be async but for now let's keep it simple or use mock
   return mockProducts.filter(p => p.id !== currentId).slice(0, limit);
 }
+

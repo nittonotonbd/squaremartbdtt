@@ -14,11 +14,42 @@ import {
   MoreHorizontalIcon
 } from '@hugeicons/core-free-icons';
 import styles from '../Admin.module.css';
-import { mockProducts } from '../../../data/products';
+import { getProducts, Product } from '../../../data/products';
 import Link from 'next/link';
 import Image from 'next/image';
+import { supabase } from '../../../lib/supabase';
+
 
 const AdminProductsPage: React.FC = () => {
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    const data = await getProducts();
+    setProducts(data);
+    setLoading(false);
+  };
+
+  React.useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDelete = async (id: number) => {
+    if (confirm('Are you sure you want to delete this product?')) {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        alert('Error deleting product');
+      } else {
+        fetchProducts();
+      }
+    }
+  };
+
   return (
     <AdminLayout>
       <div className={styles.sectionHeader}>
@@ -72,46 +103,62 @@ const AdminProductsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {mockProducts.map((product) => (
-                <tr key={product.id}>
-                  <td>
-                    <div className={styles.productInfoCell}>
-                      <img 
-                        src={product.imageUrl} 
-                        alt={product.title} 
-                        className={styles.productThumb}
-                      />
-                      <span className={styles.productName}>{product.title}</span>
-                    </div>
-                  </td>
-                  <td>Electronics</td>
-                  <td>৳{product.price}</td>
-                  <td>124</td>
-                  <td>
-                    <span className={`${styles.status} ${product.stockStatus === 'In Stock' ? styles.statusSuccess : styles.statusPending}`}>
-                      {product.stockStatus}
-                    </span>
-                  </td>
-                  <td>
-                    <div className={styles.actionBtns}>
-                      <button className={`${styles.actionBtn} ${styles.editBtn}`} title="Edit">
-                        <HugeiconsIcon icon={PencilEdit01Icon} size={18} />
-                      </button>
-                      <button className={`${styles.actionBtn} ${styles.deleteBtn}`} title="Delete">
-                        <HugeiconsIcon icon={Delete02Icon} size={18} />
-                      </button>
-                    </div>
-                  </td>
+              {loading ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>Loading products...</td>
                 </tr>
-              ))}
+              ) : products.length > 0 ? (
+                products.map((product) => (
+                  <tr key={product.id}>
+                    <td>
+                      <div className={styles.productInfoCell}>
+                        <img 
+                          src={product.imageUrl} 
+                          alt={product.title} 
+                          className={styles.productThumb}
+                        />
+                        <span className={styles.productName}>{product.title}</span>
+                      </div>
+                    </td>
+                    <td>Electronics</td>
+                    <td>৳{product.price}</td>
+                    <td>124</td>
+                    <td>
+                      <span className={`${styles.status} ${product.stockStatus === 'In Stock' ? styles.statusSuccess : styles.statusPending}`}>
+                        {product.stockStatus}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.actionBtns}>
+                        <button className={`${styles.actionBtn} ${styles.editBtn}`} title="Edit">
+                          <HugeiconsIcon icon={PencilEdit01Icon} size={18} />
+                        </button>
+                        <button 
+                          className={`${styles.actionBtn} ${styles.deleteBtn}`} 
+                          title="Delete"
+                          onClick={() => handleDelete(product.id)}
+                        >
+                          <HugeiconsIcon icon={Delete02Icon} size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>No products found.</td>
+                </tr>
+              )}
+
             </tbody>
           </table>
         </div>
         
         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p style={{ color: 'var(--text-gray)', fontSize: '14px' }}>
-            Showing 1 to {mockProducts.length} of {mockProducts.length} entries
+            Showing 1 to {products.length} of {products.length} entries
           </p>
+
           <div style={{ display: 'flex', gap: '8px' }}>
             <button className={styles.select} disabled>Previous</button>
             <button className={styles.select} style={{ backgroundColor: 'var(--primary-color)', color: 'white', borderColor: 'var(--primary-color)' }}>1</button>

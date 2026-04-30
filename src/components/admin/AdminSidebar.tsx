@@ -10,16 +10,25 @@ import {
   ShoppingBasket01Icon, 
   UserGroupIcon, 
   Settings02Icon,
-  Store01Icon
+  Store01Icon,
+  Notification01Icon,
+  Logout01Icon
+
+
 } from '@hugeicons/core-free-icons';
 import styles from '../../app/admin/Admin.module.css';
+import { supabase } from '../../lib/supabase';
+import { useRouter } from 'next/navigation';
+
 
 const navItems = [
   { name: 'Dashboard', icon: DashboardSquare01Icon, href: '/admin' },
   { name: 'Products', icon: PackageIcon, href: '/admin/products' },
   { name: 'Orders', icon: ShoppingBasket01Icon, href: '/admin/orders' },
+  { name: 'Notifications', icon: Notification01Icon, href: '/admin/notifications' },
   { name: 'Users', icon: UserGroupIcon, href: '/admin/users' },
   { name: 'Settings', icon: Settings02Icon, href: '/admin/settings' },
+
 ];
 
 interface AdminSidebarProps {
@@ -28,6 +37,13 @@ interface AdminSidebarProps {
 
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen }) => {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/admin/login');
+  };
+
 
   return (
     <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarMobileOpen : ''}`}>
@@ -61,6 +77,15 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen }) => {
           <HugeiconsIcon icon={Store01Icon} size={20} />
           <span>View Site</span>
         </Link>
+        <button 
+          onClick={handleLogout} 
+          className={styles.navItem} 
+          style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', marginTop: '8px' }}
+        >
+          <HugeiconsIcon icon={Logout01Icon} size={20} />
+          <span>Logout</span>
+        </button>
+
       </div>
     </aside>
   );
