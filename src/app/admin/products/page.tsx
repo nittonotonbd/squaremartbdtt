@@ -18,6 +18,7 @@ import { getProducts, Product } from '../../../data/products';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '../../../lib/supabase';
+import { TableRowSkeleton } from '../../../components/admin/Skeleton';
 
 
 const AdminProductsPage: React.FC = () => {
@@ -104,17 +105,19 @@ const AdminProductsPage: React.FC = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', padding: '40px' }}>Loading products...</td>
-                </tr>
+                Array.from({ length: 8 }).map((_, i) => (
+                  <TableRowSkeleton key={i} columns={6} />
+                ))
               ) : products.length > 0 ? (
                 products.map((product) => (
                   <tr key={product.id}>
                     <td>
                       <div className={styles.productInfoCell}>
-                        <img 
+                        <Image 
                           src={product.imageUrl} 
                           alt={product.title} 
+                          width={40}
+                          height={40}
                           className={styles.productThumb}
                         />
                         <span className={styles.productName}>{product.title}</span>

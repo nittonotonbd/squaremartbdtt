@@ -6,7 +6,7 @@
   background-color: #f8fafc;
   position: relative;
   overflow: hidden;
-  font-family: var(--font-inter);
+  font-family: var(--font-outfit);
 }
 
 .loginBox {
@@ -42,6 +42,13 @@
   justify-content: center;
   margin: 0 auto 20px;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  padding: 8px;
+}
+
+.loginLogoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .header h1 {

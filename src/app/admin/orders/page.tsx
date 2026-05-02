@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useSearchParams } from 'next/navigation';
@@ -24,6 +24,7 @@ import styles from '../Admin.module.css';
 import StatCard from '../../../components/admin/StatCard';
 import { Dollar01Icon, ShoppingBagIcon } from '@hugeicons/core-free-icons';
 import { supabase } from '../../../lib/supabase';
+import { StatCardSkeleton, TableRowSkeleton } from '../../../components/admin/Skeleton';
 
 interface OrderItem {
   id: number;
@@ -70,7 +71,7 @@ const getStatusClass = (status: string) => {
   }
 };
 
-const AdminOrdersPage: React.FC = () => {
+const AdminOrdersPageContent: React.FC = () => {
   const searchParams = useSearchParams();
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -251,7 +252,7 @@ const AdminOrdersPage: React.FC = () => {
         </head>
         <body>
           <div class="header">
-            <div class="logo">SquareMart</div>
+            <div class="logo">Nittonotonbd</div>
             <div class="invoice-info">
               <h2 style="margin: 0;">INVOICE</h2>
               <p>Order ID: ${order.id}</p>
@@ -296,7 +297,7 @@ const AdminOrdersPage: React.FC = () => {
             <div class="grand-total">Grand Total: ${order.amount}</div>
           </div>
           <div style="margin-top: 60px; text-align: center; color: #999; font-size: 12px;">
-            Thank you for shopping with SquareMart!
+            Thank you for shopping with Nittonotonbd!
           </div>
           <script>
             window.onload = () => {
@@ -338,7 +339,7 @@ const AdminOrdersPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `squaremart-orders-${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute('download', `nittonotonbd-orders-${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -494,32 +495,42 @@ const AdminOrdersPage: React.FC = () => {
       </div>
 
       <div className={styles.statsGrid}>
-        <StatCard 
-          label="Pending Orders" 
-          value={pendingOrdersCount.toString()} 
-          icon={Clock01Icon} 
-          trend="" 
-          trendUp={true} 
-          color="#f59e0b" 
-          onClick={() => setFilterStatus('Pending')}
-        />
-        <StatCard 
-          label="Completed Orders" 
-          value={completedOrdersCount.toString()} 
-          icon={Tick02Icon} 
-          trend="" 
-          trendUp={true} 
-          color="#10b981" 
-          onClick={() => setFilterStatus('Delivered')}
-        />
-        <StatCard 
-          label="Total Revenue" 
-          value={`৳${totalRevenue.toLocaleString()}`} 
-          icon={Dollar01Icon} 
-          trend="" 
-          trendUp={true} 
-          color="#ff5a00" 
-        />
+        {loading ? (
+          <>
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </>
+        ) : (
+          <>
+            <StatCard 
+              label="Pending Orders" 
+              value={pendingOrdersCount.toString()} 
+              icon={Clock01Icon} 
+              trend="" 
+              trendUp={true} 
+              color="#f59e0b" 
+              onClick={() => setFilterStatus('Pending')}
+            />
+            <StatCard 
+              label="Completed Orders" 
+              value={completedOrdersCount.toString()} 
+              icon={Tick02Icon} 
+              trend="" 
+              trendUp={true} 
+              color="#10b981" 
+              onClick={() => setFilterStatus('Delivered')}
+            />
+            <StatCard 
+              label="Total Revenue" 
+              value={`৳${totalRevenue.toLocaleString()}`} 
+              icon={Dollar01Icon} 
+              trend="" 
+              trendUp={true} 
+              color="#ff5a00" 
+            />
+          </>
+        )}
       </div>
 
 
@@ -572,9 +583,9 @@ const AdminOrdersPage: React.FC = () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '40px' }}>Loading orders...</td>
-                </tr>
+                Array.from({ length: 8 }).map((_, i) => (
+                  <TableRowSkeleton key={i} columns={7} />
+                ))
               ) : filteredOrders.length > 0 ? (
                 filteredOrders.map((order) => (
 
@@ -744,6 +755,21 @@ const AdminOrdersPage: React.FC = () => {
         </div>
       </div>
     </AdminLayout>
+  );
+};
+
+const AdminOrdersPage: React.FC = () => {
+  return (
+    <Suspense fallback={
+      <AdminLayout>
+        <div style={{ padding: '80px 20px', textAlign: 'center', color: 'var(--text-gray)' }}>
+          <div className={styles.loader} style={{ margin: '0 auto 20px', width: '32px', height: '32px' }}></div>
+          <p>Loading Orders...</p>
+        </div>
+      </AdminLayout>
+    }>
+      <AdminOrdersPageContent />
+    </Suspense>
   );
 };
 

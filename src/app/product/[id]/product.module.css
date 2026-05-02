@@ -13,19 +13,28 @@
 
 /* Image Gallery */
 .imageGallery {
-  flex: 1;
-  max-width: 50%;
+  flex: 0 0 450px;
 }
 
 .mainImage {
   width: 100%;
-  aspect-ratio: 1;
-  background-size: cover;
-  background-position: center;
+  max-width: 450px;
   background-color: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 15px;
   border: 1px solid #eee;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 450px;
+}
+
+.mainProductImage {
+  width: 100%;
+  height: auto;
+  max-height: 450px;
+  object-fit: contain;
 }
 
 .thumbnailContainer {
@@ -35,6 +44,7 @@
 }
 
 .thumbnail {
+  position: relative;
   width: 80px;
   height: 80px;
   background-size: cover;

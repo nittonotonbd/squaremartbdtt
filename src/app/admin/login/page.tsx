@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { supabase } from '../../../lib/supabase';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { 
@@ -59,7 +60,13 @@ const AdminLoginPage: React.FC = () => {
       <div className={styles.loginBox}>
         <div className={styles.header}>
           <div className={styles.logo}>
-            <HugeiconsIcon icon={Store01Icon} size={32} color="var(--primary-color)" />
+            <Image 
+              src="/images/logo.png" 
+              alt="Nittonotonbd Logo" 
+              width={64} 
+              height={64} 
+              className={styles.loginLogoImage}
+            />
           </div>
           <h1>Admin Login</h1>
           <p>Welcome back! Please enter your details.</p>
@@ -114,7 +121,7 @@ const AdminLoginPage: React.FC = () => {
         </form>
 
         <div className={styles.footer}>
-          <p>&copy; 2026 SquareMart. All rights reserved.</p>
+          <p>&copy; 2026 Nittonotonbd. All rights reserved.</p>
         </div>
       </div>
       <div className={styles.backgroundCircles}>

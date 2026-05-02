@@ -7,6 +7,7 @@ import { ShoppingCart01Icon, Search01Icon, Cancel01Icon } from "@hugeicons/core-
 import styles from './Header.module.css';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function Header() {
   const { cartItems } = useCart();
@@ -31,24 +32,34 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.topBar}>
-        <div className={styles.topBarContent}>
-          <span>Call to Order: 01911-940406</span>
-          <span>100% Genuine Products</span>
+        <div className={styles.marquee}>
+          <div className={styles.marqueeContent}>
+            <span>100% Genuine Products - Fast Delivery - Customer-first Approach</span>
+            <span>100% Genuine Products - Fast Delivery - Customer-first Approach</span>
+          </div>
         </div>
       </div>
       <div className={styles.mainHeader}>
         <div className={styles.logo}>
-          <Link href="/">
-            <h1>SquareMart</h1>
+          <Link href="/" className={styles.logoLink}>
+            <Image
+              src="/images/logo1.png"
+              alt="Nittonotonbd Logo"
+              width={40}
+              height={40}
+              priority
+              className={styles.logoIcon}
+            />
+            <span className={styles.logoText}>Nittonotonbd</span>
           </Link>
         </div>
-        <form 
+        <form
           className={`${styles.searchContainer} ${isSearchOpen ? styles.showSearch : ''}`}
           onSubmit={handleSearch}
         >
-          <input 
-            type="text" 
-            placeholder="Search for products..." 
+          <input
+            type="text"
+            placeholder="Search for products..."
             className={styles.searchInput}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -58,16 +69,16 @@ export default function Header() {
           </button>
         </form>
         <div className={styles.headerActions}>
-          <button 
-            className={styles.searchIconButton} 
+          <button
+            className={styles.searchIconButton}
             onClick={toggleSearch}
             aria-label="Toggle Search"
           >
-            <HugeiconsIcon 
-              icon={isSearchOpen ? Cancel01Icon : Search01Icon} 
-              size={24} 
-              color="currentColor" 
-              strokeWidth={1.5} 
+            <HugeiconsIcon
+              icon={isSearchOpen ? Cancel01Icon : Search01Icon}
+              size={24}
+              color="currentColor"
+              strokeWidth={1.5}
             />
           </button>
           <Link href="/cart" className={styles.cartContainer}>

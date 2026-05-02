@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../../../context/CartContext';
 import styles from './product.module.css';
@@ -20,10 +21,6 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
   const images = product.galleryImages || [product.imageUrl];
 
   const handleAddToCart = () => {
-    // Add item multiple times based on quantity, or you can update the context to take quantity
-    // Our context currently adds 1, then we can update quantity. Or we can just add it `quantity` times for simplicity if context doesn't support adding with quantity.
-    // Better to just add one and let user update in cart if we don't modify context. 
-    // Wait, our cart context addToCart might just add 1. Let's add multiple if needed.
     for(let i=0; i<quantity; i++){
       addToCart({ id: product.id, title: product.title, price: product.price, imageUrl: product.imageUrl });
     }
@@ -40,18 +37,33 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
       <div className={styles.productSection}>
         {/* Left: Image Gallery */}
         <div className={styles.imageGallery}>
-          <div 
-            className={styles.mainImage} 
-            style={{ backgroundImage: `url(${activeImage})` }}
-          ></div>
+          <div className={styles.mainImage}>
+            {activeImage && (
+              <Image 
+                src={activeImage} 
+                alt={product.title} 
+                width={450}
+                height={450}
+                priority 
+                className={styles.mainProductImage}
+              />
+            )}
+          </div>
           <div className={styles.thumbnailContainer}>
             {images.map((img, idx) => (
               <div 
                 key={idx}
                 className={`${styles.thumbnail} ${activeImage === img ? styles.activeThumbnail : ''}`}
-                style={{ backgroundImage: `url(${img})` }}
                 onClick={() => setActiveImage(img)}
-              ></div>
+              >
+                <Image 
+                  src={img} 
+                  alt={`${product.title} thumbnail ${idx + 1}`} 
+                  width={80}
+                  height={80}
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
             ))}
           </div>
         </div>

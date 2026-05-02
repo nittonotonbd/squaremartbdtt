@@ -9,8 +9,8 @@ interface StatCardProps {
   label: string;
   value: string;
   icon: any; // Using any for the icon object from core-free-icons
-  trend: string;
-  trendUp: boolean;
+  trend?: string;
+  trendUp?: boolean;
   color: string;
   onClick?: () => void;
 }
@@ -31,14 +31,16 @@ const StatCard: React.FC<StatCardProps> = ({ label, value, icon, trend, trendUp,
       <div className={styles.statInfo}>
         <span className={styles.statLabel}>{label}</span>
         <span className={styles.statValue}>{value}</span>
-        <div className={`${styles.statTrend} ${trendUp ? styles.trendUp : styles.trendDown}`}>
-          {trendUp ? (
-            <HugeiconsIcon icon={ArrowUp01Icon} size={14} />
-          ) : (
-            <HugeiconsIcon icon={ArrowDown01Icon} size={14} />
-          )}
-          <span>{trend} vs last month</span>
-        </div>
+        {trend && (
+          <div className={`${styles.statTrend} ${trendUp ? styles.trendUp : styles.trendDown}`}>
+            {trendUp ? (
+              <HugeiconsIcon icon={ArrowUp01Icon} size={14} />
+            ) : (
+              <HugeiconsIcon icon={ArrowDown01Icon} size={14} />
+            )}
+            <span>{trend} vs last month</span>
+          </div>
+        )}
       </div>
     </div>
   );

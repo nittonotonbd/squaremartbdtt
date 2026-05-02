@@ -15,6 +15,7 @@ import {
 import styles from '../Admin.module.css';
 import { supabase } from '../../../lib/supabase';
 import { useRouter } from 'next/navigation';
+import Skeleton from '../../../components/admin/Skeleton';
 
 
 interface Notification {
@@ -140,7 +141,20 @@ const NotificationsPage: React.FC = () => {
 
       <div className={styles.section}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading notifications...</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className={styles.formSection} style={{ margin: 0, padding: '16px 20px' }}>
+                <div style={{ display: 'flex', gap: '16px' }}>
+                  <Skeleton width={24} height={24} circle />
+                  <div style={{ flex: 1 }}>
+                    <Skeleton width="30%" height={18} style={{ marginBottom: '8px' }} />
+                    <Skeleton width="60%" height={14} style={{ marginBottom: '8px' }} />
+                    <Skeleton width="20%" height={12} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : notifications.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {notifications.map((n) => (

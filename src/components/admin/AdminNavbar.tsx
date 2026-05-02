@@ -26,6 +26,11 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({ onMenuClick }) => {
   const searchParams = useSearchParams();
   const [searchValue, setSearchValue] = useState(searchParams.get('q') || '');
   const [unreadCount, setUnreadCount] = useState(0);
+  const [adminUser, setAdminUser] = useState({
+    name: 'Admin',
+    role: 'Staff',
+    avatar: 'A'
+  });
 
 
   // Handle search submission
@@ -53,8 +58,41 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({ onMenuClick }) => {
     }
   };
 
+  const fetchAdminProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // Try to fetch from profiles table first
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, role')
+          .eq('id', user.id)
+          .single();
+
+        if (profile) {
+          setAdminUser({
+            name: profile.full_name || user.email?.split('@')[0] || 'Admin',
+            role: profile.role || 'Super Admin',
+            avatar: (profile.full_name?.[0] || user.email?.[0] || 'A').toUpperCase()
+          });
+        } else {
+          // Fallback to auth metadata or email
+          const name = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Admin';
+          setAdminUser({
+            name: name,
+            role: user.user_metadata?.role || 'Super Admin',
+            avatar: name[0].toUpperCase()
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching admin profile:', error);
+    }
+  };
+
   useEffect(() => {
     fetchUnreadCount();
+    fetchAdminProfile();
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -95,10 +133,10 @@ const AdminNavbar: React.FC<AdminNavbarProps> = ({ onMenuClick }) => {
 
         
         <div className={styles.userProfile}>
-          <div className={styles.avatar}>S</div>
+          <div className={styles.avatar}>{adminUser.avatar}</div>
           <div className={styles.userInfo}>
-            <span className={styles.userName}>Shawon</span>
-            <span className={styles.userRole}>Super Admin</span>
+            <span className={styles.userName}>{adminUser.name}</span>
+            <span className={styles.userRole}>{adminUser.role}</span>
           </div>
         </div>
       </div>

@@ -1,22 +1,55 @@
 import React from 'react';
-import { getProductById, getRelatedProducts } from '../../../data/products';
+import { getProductBySlug, getRelatedProducts } from '../../../data/products';
 import { notFound } from 'next/navigation';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 import ProductDetailsClient from './ProductDetailsClient';
 import ProductGrid from '../../../components/ProductGrid';
+import { Metadata } from 'next';
+
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const resolvedParams = await params;
+  const product = await getProductBySlug(resolvedParams.id);
+
+  if (!product) {
+    return {
+      title: 'Product Not Found',
+    };
+  }
+
+  return {
+    title: product.title,
+    description: product.description?.replace(/<[^>]*>?/gm, '').slice(0, 160) || `Buy ${product.title} online at best price in Bangladesh.`,
+    openGraph: {
+      title: product.title,
+      description: `Shop for ${product.title} at Nittonotonbd. Genuine quality and fast delivery.`,
+      images: [
+        {
+          url: product.imageUrl,
+          width: 800,
+          height: 600,
+          alt: product.title,
+        },
+      ],
+    },
+  };
+}
 
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const productId = parseInt(resolvedParams.id, 10);
-  const product = await getProductById(productId);
+  const productSlug = resolvedParams.id;
+  const product = await getProductBySlug(productSlug);
 
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = getRelatedProducts(productId, 4);
+  const relatedProducts = getRelatedProducts(product.id, 4);
 
   return (
     <>

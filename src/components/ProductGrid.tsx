@@ -6,6 +6,7 @@ import styles from './ProductGrid.module.css';
 
 interface Product {
   id: number;
+  slug: string;
   title: string;
   price: number;
   originalPrice?: number;
@@ -31,6 +32,7 @@ export default function ProductGrid({ title, products }: ProductGridProps) {
           <ProductCard 
             key={product.id}
             id={product.id}
+            slug={product.slug}
             title={product.title}
             price={product.price}
             originalPrice={product.originalPrice}

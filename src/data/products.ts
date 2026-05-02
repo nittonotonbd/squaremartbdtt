@@ -2,12 +2,14 @@ import { supabase } from '../lib/supabase';
 
 export interface Product {
   id: number;
+  slug: string;
   title: string;
   price: number;
   originalPrice?: number;
   imageUrl: string;
   galleryImages?: string[];
   description?: string;
+  category?: string;
   stockStatus: 'In Stock' | 'Out Of Stock';
   callToOrder?: string;
 }
@@ -15,6 +17,7 @@ export interface Product {
 export const mockProducts: Product[] = [
   { 
     id: 1, 
+    slug: 'waterproof-bed-cover',
     title: 'Waterproof Bed Cover (6/7 Feet)', 
     price: 1250, 
     originalPrice: 1500, 
@@ -28,6 +31,7 @@ export const mockProducts: Product[] = [
   },
   { 
     id: 2, 
+    slug: 'portable-mini-turbo-fan',
     title: 'Portable Mini Turbo Fan', 
     price: 650, 
     originalPrice: 900, 
@@ -41,6 +45,7 @@ export const mockProducts: Product[] = [
   },
   { 
     id: 3, 
+    slug: 'plug-in-quran',
     title: 'Plug in Quran', 
     price: 450, 
     imageUrl: '/images/products/plug_in_quran.png',
@@ -50,15 +55,17 @@ export const mockProducts: Product[] = [
     description: '<p>Listen to beautiful Quran recitations simply by plugging this device into any standard outlet.</p>',
     stockStatus: 'Out Of Stock',
     callToOrder: '01942-838348'
-  },
-  { id: 4, title: 'Metal Leaf Rake', price: 850, originalPrice: 1000, imageUrl: '/images/products/metal_leaf_rake.png', stockStatus: 'In Stock' },
-  { id: 5, title: 'Wire Dish washable Gloves - 3 Pair', price: 300, imageUrl: '/images/products/dishwashing_gloves.png', stockStatus: 'In Stock' },
-  { id: 6, title: 'Wireless Air Mouse', price: 950, originalPrice: 1200, imageUrl: '/images/products/wireless_air_mouse.png', stockStatus: 'In Stock' },
-  { id: 7, title: 'Panda Baby Winter Suit', price: 1100, originalPrice: 1400, imageUrl: '/images/products/panda_winter_suit.png', stockStatus: 'In Stock' },
-  { id: 8, title: 'Multiplication Board Game', price: 550, imageUrl: '/images/products/multiplication_board_game.png', stockStatus: 'Out Of Stock' },
-  { id: 9, title: 'Laptop Sleeve Bag', price: 750, originalPrice: 1050, imageUrl: '/images/products/laptop_sleeve_bag.png', stockStatus: 'In Stock' },
-  { id: 10, title: 'Universal Shower Bracket', price: 250, imageUrl: '/images/products/shower_bracket.png', stockStatus: 'In Stock' }
+  }
 ];
+
+const generateSlug = (text: string) => {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+};
 
 export async function getProducts(): Promise<Product[]> {
   const { data, error } = await supabase
@@ -73,15 +80,56 @@ export async function getProducts(): Promise<Product[]> {
 
   return data.map(p => ({
     id: p.id,
+    slug: p.slug || generateSlug(p.title) || p.id.toString(),
     title: p.title,
     price: p.price,
     originalPrice: p.original_price,
     imageUrl: p.image_url,
     galleryImages: p.gallery_images,
     description: p.description,
+    category: p.category,
     stockStatus: p.stock_status,
     callToOrder: p.call_to_order
   }));
+}
+
+export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  // First attempt: fetch by exact slug
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (!error && data) {
+    return {
+      id: data.id,
+      slug: data.slug,
+      title: data.title,
+      price: data.price,
+      originalPrice: data.original_price,
+      imageUrl: data.image_url,
+      galleryImages: data.gallery_images,
+      description: data.description,
+      category: data.category,
+      stockStatus: data.stock_status,
+      callToOrder: data.call_to_order
+    };
+  }
+
+  // Second attempt: fetch by ID if slug is numeric
+  if (!isNaN(parseInt(slug))) {
+    const product = await getProductById(parseInt(slug));
+    if (product) return product;
+  }
+
+  // Third attempt: fetch all and find by generated slug (for old products without slugs)
+  const products = await getProducts();
+  const found = products.find(p => p.slug === slug);
+  if (found) return found;
+
+  console.error('Product not found for slug:', slug);
+  return mockProducts.find(p => p.slug === slug);
 }
 
 export async function getProductById(id: number): Promise<Product | undefined> {
@@ -92,25 +140,53 @@ export async function getProductById(id: number): Promise<Product | undefined> {
     .single();
 
   if (error) {
-    console.error('Error fetching product:', error);
+    console.error('Error fetching product by id:', error);
     return mockProducts.find(p => p.id === id);
   }
 
   return {
     id: data.id,
+    slug: data.slug || generateSlug(data.title) || data.id.toString(),
     title: data.title,
     price: data.price,
     originalPrice: data.original_price,
     imageUrl: data.image_url,
     galleryImages: data.gallery_images,
     description: data.description,
+    category: data.category,
     stockStatus: data.stock_status,
     callToOrder: data.call_to_order
   };
 }
 
+export async function getProductsByCategory(category: string): Promise<Product[]> {
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('category', category)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching products by category:', error);
+    return [];
+  }
+
+  return data.map(p => ({
+    id: p.id,
+    slug: p.slug || generateSlug(p.title) || p.id.toString(),
+    title: p.title,
+    price: p.price,
+    originalPrice: p.original_price,
+    imageUrl: p.image_url,
+    galleryImages: p.gallery_images,
+    description: p.description,
+    category: p.category,
+    stockStatus: p.stock_status,
+    callToOrder: p.call_to_order
+  }));
+}
+
 export function getRelatedProducts(currentId: number, limit: number = 4): Product[] {
-  // This could also be async but for now let's keep it simple or use mock
   return mockProducts.filter(p => p.id !== currentId).slice(0, limit);
 }
 

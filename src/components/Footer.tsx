@@ -18,8 +18,8 @@ export default function Footer() {
         </button>
         <div className={styles.bottomBar}>
           <div className={styles.bottomBarContent}>
-            <p>&copy; {new Date().getFullYear()} SquareMart. All rights reserved.</p>
-            <p className={styles.developerText}>| Designed and Developed by TechJodo</p>
+            <p>&copy; {new Date().getFullYear()} Nittonotonbd. All rights reserved.</p>
+            {/* <p className={styles.developerText}>| Rakib Hasan Shawon</p> */}
           </div>
         </div>
       </div>

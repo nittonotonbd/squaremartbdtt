@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import StatCard from '../../components/admin/StatCard';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -15,9 +15,11 @@ import {
 } from '@hugeicons/core-free-icons';
 import styles from './Admin.module.css';
 import Link from 'next/link';
+import SalesAnalytics from '../../components/admin/SalesAnalytics';
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
+import { StatCardSkeleton, TableRowSkeleton } from '../../components/admin/Skeleton';
 
 
 interface RecentOrder {
@@ -29,7 +31,7 @@ interface RecentOrder {
 }
 
 
-const AdminDashboard: React.FC = () => {
+const AdminDashboardContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -125,7 +127,10 @@ const AdminDashboard: React.FC = () => {
           <p className={styles.pageSubtitle}>Welcome back! Here's what's happening with your store today.</p>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.primaryBtn}>
+          <button 
+            className={styles.primaryBtn}
+            onClick={() => router.push('/admin/reports')}
+          >
             <HugeiconsIcon icon={ChartLineData01Icon} size={20} />
             <span>View Reports</span>
           </button>
@@ -133,38 +138,49 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className={styles.statsGrid}>
-        <StatCard 
-          label="Total Revenue" 
-          value={`৳${stats.revenue.toLocaleString()}`} 
-          icon={Dollar01Icon} 
-          trend="" 
-          trendUp={true} 
-          color="#ff5a00" 
-        />
-        <StatCard 
-          label="Total Orders" 
-          value={stats.orders.toString()} 
-          icon={ShoppingBag01Icon} 
-          trend="" 
-          trendUp={true} 
-          color="#3b82f6" 
-        />
-        <StatCard 
-          label="Total Products" 
-          value={stats.products.toString()} 
-          icon={ShoppingBag01Icon} 
-          trend="" 
-          trendUp={true} 
-          color="#10b981" 
-        />
-        <StatCard 
-          label="Product Views" 
-          value={stats.views.toLocaleString()} 
-          icon={ViewIcon} 
-          trend="" 
-          trendUp={true} 
-          color="#8b5cf6" 
-        />
+        {loading ? (
+          <>
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </>
+        ) : (
+          <>
+            <StatCard 
+              label="Total Revenue" 
+              value={`৳${stats.revenue.toLocaleString()}`} 
+              icon={Dollar01Icon} 
+              trend="" 
+              trendUp={true} 
+              color="#ff5a00" 
+            />
+            <StatCard 
+              label="Total Orders" 
+              value={stats.orders.toString()} 
+              icon={ShoppingBag01Icon} 
+              trend="" 
+              trendUp={true} 
+              color="#3b82f6" 
+            />
+            <StatCard 
+              label="Total Products" 
+              value={stats.products.toString()} 
+              icon={ShoppingBag01Icon} 
+              trend="" 
+              trendUp={true} 
+              color="#10b981" 
+            />
+            <StatCard 
+              label="Product Views" 
+              value={stats.views.toLocaleString()} 
+              icon={ViewIcon} 
+              trend="" 
+              trendUp={true} 
+              color="#8b5cf6" 
+            />
+          </>
+        )}
       </div>
 
 
@@ -202,7 +218,11 @@ const AdminDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.length > 0 ? (
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRowSkeleton key={i} columns={5} />
+                  ))
+                ) : filteredOrders.length > 0 ? (
                   filteredOrders.map(order => (
                     <tr 
                       key={order.id} 
@@ -231,50 +251,76 @@ const AdminDashboard: React.FC = () => {
               </tbody>
             </table>
           </div>
-        </section>
 
-        <section className={styles.section} style={{ flex: 1 }}>
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Sales Analytics</h2>
-          </div>
-          
-          <div style={{ height: '200px', display: 'flex', alignItems: 'flex-end', gap: '12px', padding: '20px 0', borderBottom: '1px solid var(--border-color)', marginBottom: '24px' }}>
-            {[40, 70, 45, 90, 65, 80, 50].map((height, i) => (
-              <div key={i} style={{ flex: 1, position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className={styles.mobileOrderList}>
+            {loading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className={styles.orderCard}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ width: '80px', height: '16px', background: 'var(--bg-light)', borderRadius: '4px' }}></div>
+                    <div style={{ width: '60px', height: '16px', background: 'var(--bg-light)', borderRadius: '4px' }}></div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div style={{ height: '32px', background: 'var(--bg-light)', borderRadius: '4px' }}></div>
+                    <div style={{ height: '32px', background: 'var(--bg-light)', borderRadius: '4px' }}></div>
+                  </div>
+                </div>
+              ))
+            ) : filteredOrders.length > 0 ? (
+              filteredOrders.map(order => (
                 <div 
-                  style={{ 
-                    width: '100%', 
-                    height: `${height}%`, 
-                    backgroundColor: i === 3 ? 'var(--primary-color)' : 'rgba(255, 90, 0, 0.1)', 
-                    borderRadius: '4px',
-                    transition: 'all 0.3s'
-                  }} 
-                />
-              </div>
-            ))}
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {[
-              { name: 'Electronics', value: 45, color: '#ff5a00' },
-              { name: 'Fashion', value: 30, color: '#3b82f6' },
-              { name: 'Home & Living', value: 15, color: '#10b981' },
-              { name: 'Accessories', value: 10, color: '#8b5cf6' }
-            ].map((cat) => (
-              <div key={cat.name} style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                  <span style={{ fontWeight: '600', color: 'var(--text-dark)' }}>{cat.name}</span>
-                  <span style={{ color: 'var(--text-gray)' }}>{cat.value}%</span>
+                  key={order.id} 
+                  className={styles.orderCard}
+                  onClick={() => router.push(`/admin/orders?id=${order.id.replace('#ORD-', '')}`)}
+                >
+                  <div className={styles.orderCardHeader}>
+                    <span className={styles.orderCardId}>{order.id}</span>
+                    <span className={`${styles.status} ${order.status === 'Delivered' ? styles.statusSuccess : styles.statusPending}`}>
+                      {order.status}
+                    </span>
+                  </div>
+                  <div className={styles.orderCardBody}>
+                    <div className={styles.orderCardItem}>
+                      <h4>Customer</h4>
+                      <p>{order.customer_name}</p>
+                    </div>
+                    <div className={styles.orderCardItem}>
+                      <h4>Amount</h4>
+                      <p>{order.amount}</p>
+                    </div>
+                  </div>
+                  <div className={styles.orderCardItem} style={{ marginTop: '4px' }}>
+                    <h4>Product</h4>
+                    <p style={{ color: 'var(--text-gray)', fontSize: '13px' }}>{order.product}</p>
+                  </div>
                 </div>
-                <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-light)', borderRadius: '3px', overflow: 'hidden' }}>
-                  <div style={{ width: `${cat.value}%`, height: '100%', backgroundColor: cat.color, borderRadius: '3px' }}></div>
-                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-gray)' }}>
+                No orders found.
               </div>
-            ))}
+            )}
           </div>
         </section>
+
+        <SalesAnalytics />
       </div>
     </AdminLayout>
+  );
+};
+
+const AdminDashboard: React.FC = () => {
+  return (
+    <Suspense fallback={
+      <AdminLayout>
+        <div style={{ padding: '80px 20px', textAlign: 'center', color: 'var(--text-gray)' }}>
+          <div className={styles.loader} style={{ margin: '0 auto 20px', width: '32px', height: '32px' }}></div>
+          <p>Loading Dashboard...</p>
+        </div>
+      </AdminLayout>
+    }>
+      <AdminDashboardContent />
+    </Suspense>
   );
 };
 
