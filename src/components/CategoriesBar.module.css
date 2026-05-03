@@ -36,3 +36,9 @@
   color: var(--primary-color);
   border-bottom: 3px solid var(--primary-color);
 }
+
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+  }
+}

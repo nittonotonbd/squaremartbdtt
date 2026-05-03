@@ -35,8 +35,13 @@
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .mainHeader {
@@ -57,28 +62,28 @@
 .logoLink {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   text-decoration: none;
 }
 
 .logoIcon {
-  height: 40px;
-  width: 40px;
+  height: 32px;
+  width: 32px;
   object-fit: contain;
 }
 
 .logoText {
   color: #00416E;
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.5px;
 }
 
 .searchContainer {
   display: flex;
-  flex: 1;
-  max-width: 500px;
-  margin: 0 40px;
+  flex: 2;
+  max-width: 600px;
+  margin: 0 20px;
   border: 2px solid var(--primary-color);
   border-radius: 4px;
   overflow: hidden;
@@ -136,13 +141,39 @@
   gap: 20px;
 }
 
+.headerLeft {
+  display: none;
+  /* Hidden on desktop by default as it only has menu icon */
+  align-items: center;
+}
+
+.menuButton {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: var(--text-dark);
+  display: none;
+  /* Hidden on desktop */
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.menuButton:hover {
+  background-color: var(--bg-light);
+  transform: scale(1.05);
+}
+
 .searchIconButton {
   background: none;
   border: none;
   padding: 8px;
   cursor: pointer;
   color: var(--text-dark);
-  display: none; /* Hidden on desktop */
+  display: none;
+  /* Hidden on desktop */
   align-items: center;
   justify-content: center;
   border-radius: 50%;
@@ -169,7 +200,147 @@
   justify-content: center;
 }
 
+/* Mobile Sidebar Menu Styles */
+.mobileMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.mobileMenuOverlay.menuOpen {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobileSidebar {
+  position: absolute;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100%;
+  background-color: white;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.menuOpen .mobileSidebar {
+  left: 0;
+}
+
+.sidebarHeader {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebarHeader h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: var(--bg-light);
+}
+
+.sidebarNav {
+  padding: 10px 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sidebarLink {
+  display: block;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.sidebarLink:hover {
+  background-color: var(--bg-light);
+  color: var(--primary-color);
+  border-left-color: var(--primary-color);
+  padding-left: 25px;
+}
+
 @media (max-width: 768px) {
+  .logoIcon {
+    display: none;
+  }
+
+  .mainHeader {
+    height: 60px;
+    padding: 0 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .headerLeft {
+    display: flex;
+    flex: 1;
+    justify-content: flex-start;
+  }
+
+  .logo {
+    flex: 2;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .logoText {
+    font-size: 18px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .logoLink {
+    gap: 0;
+  }
+
+  .headerActions {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .menuButton {
+    display: flex;
+    padding: 5px;
+  }
+
   .searchContainer {
     display: none;
     position: absolute;
@@ -186,7 +357,7 @@
     border-top: 1px solid var(--border-color);
     border-radius: 0;
   }
-  
+
   .searchContainer.showSearch {
     display: flex;
   }
@@ -198,9 +369,10 @@
 
   .searchIconButton {
     display: flex;
+    padding: 5px;
   }
 
-  .headerActions {
-    gap: 10px;
+  .cartContainer {
+    padding: 5px;
   }
 }
