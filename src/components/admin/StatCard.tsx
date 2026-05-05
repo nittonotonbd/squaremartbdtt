@@ -17,13 +17,13 @@ interface StatCardProps {
 
 const StatCard: React.FC<StatCardProps> = ({ label, value, icon, trend, trendUp, color, onClick }) => {
   return (
-    <div 
-      className={styles.statCard} 
+    <div
+      className={styles.statCard}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
     >
-      <div 
-        className={styles.statIconContainer} 
+      <div
+        className={styles.statIconContainer}
         style={{ backgroundColor: `${color}15`, color: color }}
       >
         <HugeiconsIcon icon={icon} size={24} />

@@ -294,9 +294,7 @@
 }
 
 @media (max-width: 768px) {
-  .logoIcon {
-    display: none;
-  }
+  /* .logoIcon removed display: none */
 
   .mainHeader {
     height: 60px;
@@ -326,7 +324,7 @@
   }
 
   .logoLink {
-    gap: 0;
+    gap: 2px;
   }
 
   .headerActions {

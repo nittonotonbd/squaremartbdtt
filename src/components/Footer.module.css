@@ -1,42 +1,89 @@
 .footer {
-  background-color: var(--text-dark);
-  color: white;
+  background-color: #f8f8f8;
+  color: #333;
   margin-top: 60px;
+  border-top: 1px solid #eee;
 }
 
 .footerContent {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 60px 20px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px;
+  padding: 40px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.column h3 {
-  color: var(--primary-color);
-  font-size: 18px;
-  margin-bottom: 20px;
+.linksContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
 }
 
-.column p, .column li {
-  color: var(--text-light);
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-
-.column ul {
-  padding: 0;
-  list-style: none;
-}
-
-.column a {
-  color: var(--text-light);
+.linksContainer a {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 15px;
+  text-transform: uppercase;
   transition: color 0.2s;
 }
 
-.column a:hover {
-  color: var(--primary-color);
+.linksContainer a:hover {
+  color: #ff6600;
+}
+
+.socialIcons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.socialIconLink {
+  width: 40px;
+  height: 40px;
+  background-color: #666;
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.socialIconLink:hover {
+  background-color: #333;
+}
+
+.paymentMethods {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.bkashLogo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+}
+
+.paymentGridWrapper {
+  width: 100%;
+  max-width: 800px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background: white;
+  border-radius: 8px;
+}
+
+.paymentGrid {
+  width: 100%;
+  height: auto;
+  display: block;
 }
 
 .bottomBarContainer {
@@ -67,7 +114,6 @@
 .bottomBar {
   background-color: #ff6600; /* Orange background */
   padding: 15px 20px;
-  border-top: none;
 }
 
 .bottomBarContent {
@@ -86,26 +132,15 @@
   margin: 0;
 }
 
-.developerText {
-  margin-left: 0;
-}
-
 @media (max-width: 768px) {
   .footerContent {
-    grid-template-columns: 1fr;
-    gap: 30px;
+    padding: 30px 15px;
   }
   
-  .bottomBarContent {
-    flex-direction: column;
-    text-align: center;
-    gap: 10px;
+  .paymentGridWrapper {
+    max-width: 100%;
   }
-  
-  .developerText {
-    margin-left: 0;
-  }
-  
+
   .scrollTopBtn {
     right: 20px;
   }

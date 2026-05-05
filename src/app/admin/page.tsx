@@ -4,9 +4,9 @@ import React, { useState, useEffect, Suspense } from 'react';
 import AdminLayout from '../../components/admin/AdminLayout';
 import StatCard from '../../components/admin/StatCard';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  ShoppingBag01Icon, 
-  UserGroupIcon, 
+import {
+  ShoppingBag01Icon,
+  UserGroupIcon,
   Dollar01Icon,
   ViewIcon,
   ArrowRight01Icon,
@@ -41,7 +41,7 @@ const AdminDashboardContent: React.FC = () => {
     revenue: 0,
     orders: 0,
     products: 0,
-    views: 45210 // Placeholder
+    customers: 0
   });
   const [recentOrders, setRecentOrders] = useState<RecentOrder[]>([]);
 
@@ -65,12 +65,19 @@ const AdminDashboardContent: React.FC = () => {
 
       // Calculate stats
       const revenue = orders.reduce((acc, o) => acc + (o.status !== 'Cancelled' ? o.total : 0), 0);
-      
+
+      // 3. Fetch Customers Count
+      const { count: customerCount, error: customerError } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+
+      if (customerError) throw customerError;
+
       setStats({
         revenue,
         orders: orders.length,
         products: productCount || 0,
-        views: 45210
+        customers: customerCount || 0
       });
 
       // Format recent orders
@@ -112,8 +119,8 @@ const AdminDashboardContent: React.FC = () => {
     setSearchQuery(searchParams.get('q') || '');
   }, [searchParams]);
 
-  const filteredOrders = recentOrders.filter(order => 
-    order.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredOrders = recentOrders.filter(order =>
+    order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
     order.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     order.product.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -127,7 +134,7 @@ const AdminDashboardContent: React.FC = () => {
           <p className={styles.pageSubtitle}>Welcome back! Here's what's happening with your store today.</p>
         </div>
         <div className={styles.headerActions}>
-          <button 
+          <button
             className={styles.primaryBtn}
             onClick={() => router.push('/admin/reports')}
           >
@@ -147,37 +154,37 @@ const AdminDashboardContent: React.FC = () => {
           </>
         ) : (
           <>
-            <StatCard 
-              label="Total Revenue" 
-              value={`৳${stats.revenue.toLocaleString()}`} 
-              icon={Dollar01Icon} 
-              trend="" 
-              trendUp={true} 
-              color="#ff5a00" 
+            <StatCard
+              label="Total Revenue"
+              value={`৳${stats.revenue.toLocaleString()}`}
+              icon={Dollar01Icon}
+              trend=""
+              trendUp={true}
+              color="#ff5a00"
             />
-            <StatCard 
-              label="Total Orders" 
-              value={stats.orders.toString()} 
-              icon={ShoppingBag01Icon} 
-              trend="" 
-              trendUp={true} 
-              color="#3b82f6" 
+            <StatCard
+              label="Total Orders"
+              value={stats.orders.toString()}
+              icon={ShoppingBag01Icon}
+              trend=""
+              trendUp={true}
+              color="#3b82f6"
             />
-            <StatCard 
-              label="Total Products" 
-              value={stats.products.toString()} 
-              icon={ShoppingBag01Icon} 
-              trend="" 
-              trendUp={true} 
-              color="#10b981" 
+            <StatCard
+              label="Total Customers"
+              value={stats.customers.toLocaleString()}
+              icon={UserGroupIcon}
+              trend="+5.4%"
+              trendUp={true}
+              color="#10b981"
             />
-            <StatCard 
-              label="Product Views" 
-              value={stats.views.toLocaleString()} 
-              icon={ViewIcon} 
-              trend="" 
-              trendUp={true} 
-              color="#8b5cf6" 
+            <StatCard
+              label="Total Products"
+              value={stats.products.toString()}
+              icon={ShoppingBag01Icon}
+              trend="+2 new"
+              trendUp={true}
+              color="#8b5cf6"
             />
           </>
         )}
@@ -192,20 +199,20 @@ const AdminDashboardContent: React.FC = () => {
               View All <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
             </Link>
           </div>
-          
+
           <div className={styles.filterBar} style={{ padding: '0', background: 'transparent', border: 'none', marginBottom: '16px' }}>
             <div className={styles.searchContainer} style={{ width: '100%' }}>
               <HugeiconsIcon icon={Search01Icon} size={18} color="var(--text-light)" />
-              <input 
-                type="text" 
-                placeholder="Search recent orders..." 
+              <input
+                type="text"
+                placeholder="Search recent orders..."
                 className={styles.searchInput}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
-          
+
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
@@ -224,8 +231,8 @@ const AdminDashboardContent: React.FC = () => {
                   ))
                 ) : filteredOrders.length > 0 ? (
                   filteredOrders.map(order => (
-                    <tr 
-                      key={order.id} 
+                    <tr
+                      key={order.id}
                       onClick={() => router.push(`/admin/orders?id=${order.id.replace('#ORD-', '')}`)}
                       style={{ cursor: 'pointer' }}
                       className={styles.hoverRow}
@@ -268,8 +275,8 @@ const AdminDashboardContent: React.FC = () => {
               ))
             ) : filteredOrders.length > 0 ? (
               filteredOrders.map(order => (
-                <div 
-                  key={order.id} 
+                <div
+                  key={order.id}
                   className={styles.orderCard}
                   onClick={() => router.push(`/admin/orders?id=${order.id.replace('#ORD-', '')}`)}
                 >

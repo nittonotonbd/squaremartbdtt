@@ -2,13 +2,13 @@
 
 import React from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
-import { 
-  HugeiconsIcon 
+import {
+  HugeiconsIcon
 } from '@hugeicons/react';
-import { 
-  Add01Icon, 
-  PencilEdit01Icon, 
-  Delete02Icon, 
+import {
+  Add01Icon,
+  PencilEdit01Icon,
+  Delete02Icon,
   Search01Icon,
   FilterIcon,
   MoreHorizontalIcon
@@ -69,9 +69,9 @@ const AdminProductsPage: React.FC = () => {
       <div className={styles.filterBar}>
         <div className={styles.searchContainer}>
           <HugeiconsIcon icon={Search01Icon} size={18} color="var(--text-light)" />
-          <input 
-            type="text" 
-            placeholder="Search products by name, SKU..." 
+          <input
+            type="text"
+            placeholder="Search products by name, SKU..."
             className={styles.searchInput}
           />
         </div>
@@ -113,9 +113,9 @@ const AdminProductsPage: React.FC = () => {
                   <tr key={product.id}>
                     <td>
                       <div className={styles.productInfoCell}>
-                        <Image 
-                          src={product.imageUrl} 
-                          alt={product.title} 
+                        <Image
+                          src={product.imageUrl}
+                          alt={product.title}
                           width={40}
                           height={40}
                           className={styles.productThumb}
@@ -136,8 +136,8 @@ const AdminProductsPage: React.FC = () => {
                         <button className={`${styles.actionBtn} ${styles.editBtn}`} title="Edit">
                           <HugeiconsIcon icon={PencilEdit01Icon} size={18} />
                         </button>
-                        <button 
-                          className={`${styles.actionBtn} ${styles.deleteBtn}`} 
+                        <button
+                          className={`${styles.actionBtn} ${styles.deleteBtn}`}
                           title="Delete"
                           onClick={() => handleDelete(product.id)}
                         >
@@ -156,7 +156,7 @@ const AdminProductsPage: React.FC = () => {
             </tbody>
           </table>
         </div>
-        
+
         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p style={{ color: 'var(--text-gray)', fontSize: '14px' }}>
             Showing 1 to {products.length} of {products.length} entries

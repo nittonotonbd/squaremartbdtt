@@ -9,6 +9,8 @@ import styles from './cart.module.css';
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Delete01Icon } from "@hugeicons/core-free-icons";
 import { supabase } from '../../lib/supabase';
+import OrderSuccess from '../../components/OrderSuccess';
+
 
 
 export default function CartPage() {
@@ -19,6 +21,8 @@ export default function CartPage() {
   const total = subtotal + shippingCost;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderResult, setOrderResult] = useState<{ id: any; name: string; total: number } | null>(null);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,10 +83,14 @@ export default function CartPage() {
       }
 
 
-      alert("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
 
       clearCart();
-      router.push('/');
+      setOrderResult({
+        id: order.id,
+        name: orderData.customer_name,
+        total: orderData.total
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error('Error placing order:', error);
       alert("অর্ডার করার সময় সমস্যা হয়েছে। দয়া করে আবার চেষ্টা করুন।");
@@ -96,7 +104,15 @@ export default function CartPage() {
     <>
       <Header />
       <main className={styles.container}>
-        <div className={styles.layout}>
+        {orderResult ? (
+          <OrderSuccess 
+            orderId={orderResult.id} 
+            customerName={orderResult.name} 
+            totalAmount={orderResult.total} 
+          />
+        ) : (
+          <div className={styles.layout}>
+
           
           {/* Left Column: Form */}
           <div className={styles.formSection}>
@@ -219,9 +235,10 @@ export default function CartPage() {
               </div>
             </div>
           </div>
-          
         </div>
+        )}
       </main>
+
       <Footer />
     </>
   );
