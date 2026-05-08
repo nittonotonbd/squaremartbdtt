@@ -179,33 +179,38 @@
 
 .buttons {
   display: flex;
-  gap: 15px;
+  gap: 10px;
+  align-items: stretch;
 }
 
 .addToCartBtn {
-  flex: 1;
+  width: 54px;
+  height: 54px;
   background-color: #ff6600;
   color: white;
   border: none;
-  padding: 15px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 }
 
 .buyNowBtn {
   flex: 1;
+  height: 54px;
   background-color: #008000;
   color: white;
   border: none;
-  padding: 15px 20px;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .addToCartBtn:hover, .buyNowBtn:hover {
@@ -259,6 +264,6 @@
     max-width: 100%;
   }
   .buttons {
-    flex-direction: column;
+    flex-direction: row;
   }
 }

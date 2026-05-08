@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '../../../context/CartContext';
 import styles from './product.module.css';
 import { Product } from '../../../data/products';
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 
 export default function ProductDetailsClient({ product }: { product: Product }) {
   const [activeImage, setActiveImage] = useState(product.imageUrl);
@@ -106,20 +108,21 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
 
             <div className={styles.buttons}>
               <button 
-                className={styles.addToCartBtn} 
-                onClick={handleAddToCart}
-                disabled={product.stockStatus === 'Out Of Stock'}
-                style={{ opacity: product.stockStatus === 'Out Of Stock' ? 0.5 : 1, cursor: product.stockStatus === 'Out Of Stock' ? 'not-allowed' : 'pointer' }}
-              >
-                Add to Cart
-              </button>
-              <button 
                 className={styles.buyNowBtn} 
                 onClick={handleBuyNow}
                 disabled={product.stockStatus === 'Out Of Stock'}
                 style={{ opacity: product.stockStatus === 'Out Of Stock' ? 0.5 : 1, cursor: product.stockStatus === 'Out Of Stock' ? 'not-allowed' : 'pointer' }}
               >
-                Buy Now
+                অর্ডার করুন
+              </button>
+              <button 
+                className={styles.addToCartBtn} 
+                onClick={handleAddToCart}
+                disabled={product.stockStatus === 'Out Of Stock'}
+                style={{ opacity: product.stockStatus === 'Out Of Stock' ? 0.5 : 1, cursor: product.stockStatus === 'Out Of Stock' ? 'not-allowed' : 'pointer' }}
+                title="Add to Cart"
+              >
+                <HugeiconsIcon icon={ShoppingCart01Icon} size={24} color="white" />
               </button>
             </div>
           </div>

@@ -3,6 +3,9 @@
 import React from 'react';
 import styles from './ProductCard.module.css';
 import { useCart } from '../context/CartContext';
+import { useRouter } from 'next/navigation';
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 
 interface ProductCardProps {
   id: number;
@@ -19,9 +22,19 @@ import Image from 'next/image';
 export default function ProductCard({ id, slug, title, price, originalPrice, imageUrl }: ProductCardProps) {
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   const { addToCart } = useCart();
+  const router = useRouter();
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     addToCart({ id, title, price, imageUrl });
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({ id, title, price, imageUrl });
+    router.push('/cart');
   };
 
   return (
@@ -52,7 +65,14 @@ export default function ProductCard({ id, slug, title, price, originalPrice, ima
           </div>
         </div>
       </Link>
-      <button className={styles.addToCartBtn} onClick={handleAddToCart}>Add to Cart</button>
+      <div className={styles.buttonContainer}>
+        <button className={styles.buyNowBtn} onClick={handleBuyNow}>
+          অর্ডার করুন
+        </button>
+        <button className={styles.addToCartBtn} onClick={handleAddToCart} title="Add to Cart">
+          <HugeiconsIcon icon={ShoppingCart01Icon} size={18} color="white" />
+        </button>
+      </div>
     </div>
   );
 }
