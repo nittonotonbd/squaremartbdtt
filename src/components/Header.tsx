@@ -45,8 +45,8 @@ export default function Header() {
       <div className={styles.topBar}>
         <div className={styles.marquee}>
           <div className={styles.marqueeContent}>
-            <span>100% Genuine Products - Fast Delivery - Customer-first Approach</span>
-            <span>100% Genuine Products - Fast Delivery - Customer-first Approach</span>
+            <span>১০০% আসল পণ্য - দ্রুত ডেলিভারি - গ্রাহক-বান্ধব সেবা</span>
+            <span>১০০% আসল পণ্য - দ্রুত ডেলিভারি - গ্রাহক-বান্ধব সেবা</span>
           </div>
         </div>
       </div>

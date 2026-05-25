@@ -15,10 +15,27 @@ import OrderSuccess from '../../components/OrderSuccess';
 
 export default function CartPage() {
   const router = useRouter();
-  const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart, changeCartItemProduct } = useCart();
   const subtotal = getCartTotal();
-  const [shippingCost, setShippingCost] = useState(120); // Default to Outside Dhaka
+  const [shippingCost, setShippingCost] = useState(0); // Free Delivery
   const total = subtotal + shippingCost;
+
+  const sizeOptions = [
+    {
+      id: 4,
+      title: 'Waterproof Bed Cover (6/7 Feet)',
+      price: 1090,
+      sizeName: 'সাইজ, ৬ফুট x ৭ ফুট',
+      imageUrl: 'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.4227430882981412.jpeg'
+    },
+    {
+      id: 5,
+      title: 'Waterproof Bed Cover (7/8 Feet)',
+      price: 1250,
+      sizeName: 'সাইজ, ৭ফুট x ৮ ফুট',
+      imageUrl: 'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.5863508889960549.jpeg'
+    }
+  ];
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderResult, setOrderResult] = useState<{ id: any; name: string; total: number } | null>(null);
@@ -140,38 +157,17 @@ export default function CartPage() {
               </div>
               
               <div className={styles.formGroup}>
-                <label>আপনার মন্তব্য</label>
-                <input type="text" name="notes" placeholder="কালার, সাইজ, অর্ডার অথবা ডেলিভারি সম্পর্কে যে কোন কথা যদি থাকে।" />
-
+                <label>কালার কোড</label>
+                <input type="text" name="notes" placeholder="চাদরের উপরের কোড টা দেন" />
               </div>
               
               <div className={styles.formGroup}>
-                <label>কুরিয়ার চার্জ</label>
+                <label>ডেলিভারি চার্জ</label>
                 <div className={styles.radioGroup}>
-                  <label className={`${styles.radioOption} ${shippingCost === 120 ? styles.activeRadio : ''}`}>
-                    <input 
-                      type="radio" 
-                      name="shipping" 
-                      value="120" 
-                      checked={shippingCost === 120} 
-                      onChange={() => setShippingCost(120)} 
-                      className={styles.hiddenRadio}
-                    />
+                  <div className={`${styles.radioOption} ${styles.activeRadio}`}>
                     <span className={styles.customRadio}></span>
-                    <span className={styles.radioText}>ঢাকার বাহিরে ১২০ টাকা</span>
-                  </label>
-                  <label className={`${styles.radioOption} ${shippingCost === 80 ? styles.activeRadio : ''}`}>
-                    <input 
-                      type="radio" 
-                      name="shipping" 
-                      value="80" 
-                      checked={shippingCost === 80} 
-                      onChange={() => setShippingCost(80)} 
-                      className={styles.hiddenRadio}
-                    />
-                    <span className={styles.customRadio}></span>
-                    <span className={styles.radioText}>ঢাকার ভিতর ৮০ টাকা</span>
-                  </label>
+                    <span className={styles.radioText}>ডেলিভারি চার্জ ফ্রি</span>
+                  </div>
                 </div>
               </div>
               
@@ -195,28 +191,63 @@ export default function CartPage() {
               <div className={styles.tableBody}>
                 {cartItems.length === 0 ? (
                   <div style={{padding: '20px', textAlign: 'center', color: '#999'}}>কার্টে কোন প্রোডাক্ট নেই</div>
-                ) : cartItems.map(item => (
-                  <div key={item.id} className={styles.tableRow}>
-                    <div className={styles.colProduct}>
-                      <div className={styles.itemImage} style={{ backgroundImage: `url(${item.imageUrl})` }}></div>
-                      <span>{item.title}</span>
-                    </div>
-                    <div className={styles.colPrice}>{item.price} টাকা</div>
-                    <div className={styles.colQty}>
-                      <div className={styles.qtyControls}>
-                        <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                        <span>{item.quantity}</span>
-                        <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                ) : cartItems.map(item => {
+                  const isBedCover = item.title.toLowerCase().includes('waterproof bed cover') || item.id === 4 || item.id === 5;
+                  return (
+                    <div key={item.id} className={styles.tableRow}>
+                      <div className={styles.rowMainInfo}>
+                        <div className={styles.colProduct}>
+                          <div className={styles.itemImage} style={{ backgroundImage: `url(${item.imageUrl})` }}></div>
+                          <span>{item.title}</span>
+                        </div>
+                        <div className={styles.colPrice}>{item.price} টাকা</div>
+                        <div className={styles.colQty}>
+                          <div className={styles.qtyControls}>
+                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
+                            <span>{item.quantity}</span>
+                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                          </div>
+                        </div>
+                        <div className={styles.colTotal}>
+                          {item.price * item.quantity} টাকা
+                          <button type="button" onClick={() => removeFromCart(item.id)} className={styles.removeBtn}>
+                            <HugeiconsIcon icon={Delete01Icon} size={16} color="#aaa" />
+                          </button>
+                        </div>
                       </div>
+                      
+                      {isBedCover && (
+                        <div className={styles.cartSizeSelectionBlock}>
+                          <span className={styles.cartSizeSelectLabel}>সাইজ পরিবর্তন করুন:</span>
+                          <div className={styles.cartSizeOptionsGrid}>
+                            {sizeOptions.map((opt) => (
+                              <div
+                                key={opt.id}
+                                className={`${styles.cartSizeOptionCard} ${item.id === opt.id ? styles.cartActiveSizeCard : ''}`}
+                                onClick={() => {
+                                  if (item.id !== opt.id) {
+                                    changeCartItemProduct(item.id, {
+                                      id: opt.id,
+                                      title: opt.title,
+                                      price: opt.price,
+                                      imageUrl: opt.imageUrl
+                                    });
+                                  }
+                                }}
+                              >
+                                <span className={styles.cartSizeRadioCircle}>
+                                  {item.id === opt.id && <span className={styles.cartSizeRadioInnerCircle}></span>}
+                                </span>
+                                <span className={styles.cartSizeName}>{opt.sizeName}</span>
+                                <span className={styles.cartSizePrice}>{opt.price} টাকা</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className={styles.colTotal}>
-                      {item.price * item.quantity} টাকা
-                      <button type="button" onClick={() => removeFromCart(item.id)} className={styles.removeBtn}>
-                        <HugeiconsIcon icon={Delete01Icon} size={16} color="#aaa" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
             

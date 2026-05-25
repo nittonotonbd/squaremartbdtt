@@ -267,3 +267,141 @@
     flex-direction: row;
   }
 }
+
+/* Size Selection Block */
+.sizeSelectionBlock {
+  margin-bottom: 25px;
+  border-top: 1px solid #f1f3f5;
+  padding-top: 20px;
+}
+
+.sizeSelectHeading {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.sizeOptionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.sizeOptionCard {
+  position: relative;
+  background-color: #fff;
+  border: 1.5px solid #dcdcdc;
+  border-radius: 12px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+}
+
+.sizeOptionCard:hover {
+  border-color: #008000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.activeSizeCard {
+  border-color: #008000 !important;
+  background-color: #f4faf6 !important;
+}
+
+.sizeRadioWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+}
+
+.sizeRadioCircle {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #adb5bd;
+  border-radius: 50%;
+  background-color: #ffffff;
+  margin-top: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.activeSizeCard .sizeRadioCircle {
+  border-color: #007bff;
+}
+
+.sizeRadioInnerCircle {
+  width: 12px;
+  height: 12px;
+  background-color: #007bff;
+  border-radius: 50%;
+}
+
+.sizeCardDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.sizeLabel {
+  font-size: 15px;
+  font-weight: 700;
+  color: #333;
+}
+
+.sizePriceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sizeMrp {
+  font-size: 13px;
+  color: #777;
+  text-decoration: line-through;
+}
+
+.sizeDiscountBadge {
+  background-color: red;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.sizeFinalPrice {
+  font-size: 20px;
+  font-weight: 700;
+  color: #008000;
+  margin-top: 2px;
+}
+
+.bestSellerBadge {
+  position: absolute;
+  top: -12px;
+  right: 15px;
+  background: linear-gradient(90deg, #ff9900, #ff5500);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 4px 12px;
+  border-radius: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  z-index: 2;
+}
+
+@media (max-width: 576px) {
+  .sizeOptionsGrid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}

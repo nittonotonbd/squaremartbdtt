@@ -15,7 +15,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
   const subtotal = getCartTotal();
-  const [shippingCost, setShippingCost] = useState(120); // Default to Outside Dhaka
+  const [shippingCost, setShippingCost] = useState(0); // Free Shipping
   const total = subtotal + shippingCost;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -124,34 +124,17 @@ export default function CheckoutPage() {
               </div>
               
               <div className={styles.formGroup}>
-                <label>আপনার মন্তব্য</label>
-                <input type="text" name="notes" placeholder="কালার, সাইজ, অর্ডার অথবা ডেলিভারি সম্পর্কে যে কোন কথা যদি থাকে।" />
-
+                <label>কালার কোড</label>
+                <input type="text" name="notes" placeholder="চাদরের উপরের কোড টা দেন" />
               </div>
               
               <div className={styles.formGroup}>
-                <label>কুরিয়ার চার্জ</label>
+                <label>ডেলিভারি চার্জ</label>
                 <div className={styles.radioGroup}>
-                  <label className={`${styles.radioOption} ${shippingCost === 120 ? styles.activeRadio : ''}`}>
-                    <input 
-                      type="radio" 
-                      name="shipping" 
-                      value="120" 
-                      checked={shippingCost === 120} 
-                      onChange={() => setShippingCost(120)} 
-                    />
-                    ঢাকার বাহিরে ১২০ টাকা
-                  </label>
-                  <label className={`${styles.radioOption} ${shippingCost === 80 ? styles.activeRadio : ''}`}>
-                    <input 
-                      type="radio" 
-                      name="shipping" 
-                      value="80" 
-                      checked={shippingCost === 80} 
-                      onChange={() => setShippingCost(80)} 
-                    />
-                    ঢাকার ভিতর ৮০ টাকা
-                  </label>
+                  <div className={`${styles.radioOption} ${styles.activeRadio}`}>
+                    <span className={styles.customRadio}></span>
+                    <span className={styles.radioText}>ডেলিভারি চার্জ ফ্রি</span>
+                  </div>
                 </div>
               </div>
               
