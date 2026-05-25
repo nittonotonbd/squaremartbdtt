@@ -11,14 +11,9 @@ interface Props {
 }
 
 const categoryMap: Record<string, string> = {
-  "offer-product": "Offer Product",
-  "baby-toys": "Baby & Toys",
-  "laptop-stands": "Laptop Stands",
-  "islamic-items": "Islamic Items",
-  "home-kitchen": "Home & Kitchen",
-  "home-appliances": "Home Appliances",
-  "daily-life-products": "Daily Life Products",
-  "kitchen-gloves": "Kitchen Gloves"
+  "waterproof-chador": "ওয়াটারপ্রুফ চাদর",
+  "normal-chador": "নরমাল চাদর",
+  "moshari": "মশারী"
 };
 
 export default async function CategoryPage({ params }: Props) {

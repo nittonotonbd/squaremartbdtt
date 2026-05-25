@@ -372,6 +372,12 @@ const AdminOrdersPageContent: React.FC = () => {
                     </p>
                   </div>
                   <div className={styles.detailItem}>
+                    <h4>কালার কোড (Color Code)</h4>
+                    <p style={{ fontWeight: '600', color: '#ff5a00' }}>
+                      {selectedOrder.notes || 'No color code specified'}
+                    </p>
+                  </div>
+                  <div className={styles.detailItem}>
                     <h4>Payment Status</h4>
                     <p>{selectedOrder.payment_status}</p>
                   </div>

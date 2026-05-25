@@ -95,7 +95,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
             )}
           </div>
           <div className={styles.thumbnailContainer}>
-            {images.map((img, idx) => (
+            {images.map((img: string, idx: number) => (
               <div 
                 key={idx}
                 className={`${styles.thumbnail} ${activeImage === img ? styles.activeThumbnail : ''}`}

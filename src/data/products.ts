@@ -26,6 +26,7 @@ export const mockProducts: Product[] = [
       '/images/products/waterproof_bed_cover.png',
     ],
     description: '<p>100% waterproof bed cover that protects your mattress from spills and stains. Breathable, quiet, and fits beds up to 7 feet.</p><ul><li>High-quality materials</li><li>Machine washable</li><li>Hypoallergenic</li></ul>',
+    category: 'ওয়াটারপ্রুফ চাদর',
     stockStatus: 'In Stock',
     callToOrder: '01942-838348'
   },
@@ -40,6 +41,7 @@ export const mockProducts: Product[] = [
       '/images/products/mini_turbo_fan.png',
     ],
     description: '<p>Stay cool anywhere with this portable mini turbo fan. Features 3 speed settings and a long-lasting rechargeable battery.</p>',
+    category: 'নরমাল চাদর',
     stockStatus: 'In Stock',
     callToOrder: '01942-838348'
   },
@@ -53,6 +55,7 @@ export const mockProducts: Product[] = [
       '/images/products/plug_in_quran.png'
     ],
     description: '<p>Listen to beautiful Quran recitations simply by plugging this device into any standard outlet.</p>',
+    category: 'মশারী',
     stockStatus: 'Out Of Stock',
     callToOrder: '01942-838348'
   }

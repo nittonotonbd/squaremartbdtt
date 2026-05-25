@@ -313,14 +313,9 @@ const AddProductPage: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               >
                 <option value="">Select Category</option>
-                <option value="Offer Product">Offer Product</option>
-                <option value="Baby & Toys">Baby & Toys</option>
-                <option value="Laptop Stands">Laptop Stands</option>
-                <option value="Islamic Items">Islamic Items</option>
-                <option value="Home & Kitchen">Home & Kitchen</option>
-                <option value="Home Appliances">Home Appliances</option>
-                <option value="Daily Life Products">Daily Life Products</option>
-                <option value="Kitchen Gloves">Kitchen Gloves</option>
+                <option value="ওয়াটারপ্রুফ চাদর">ওয়াটারপ্রুফ চাদর</option>
+                <option value="নরমাল চাদর">নরমাল চাদর</option>
+                <option value="মশারী">মশারী</option>
               </select>
             </div>
           </div>

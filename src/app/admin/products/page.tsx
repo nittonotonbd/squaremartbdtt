@@ -78,9 +78,9 @@ const AdminProductsPage: React.FC = () => {
         <div className={styles.filterGroup}>
           <select className={styles.select}>
             <option>All Categories</option>
-            <option>Electronics</option>
-            <option>Fashion</option>
-            <option>Home & Living</option>
+            <option>ওয়াটারপ্রুফ চাদর</option>
+            <option>নরমাল চাদর</option>
+            <option>মশারী</option>
           </select>
           <select className={styles.select}>
             <option>Stock Status</option>
@@ -123,7 +123,7 @@ const AdminProductsPage: React.FC = () => {
                         <span className={styles.productName}>{product.title}</span>
                       </div>
                     </td>
-                    <td>Electronics</td>
+                    <td>{product.category || 'N/A'}</td>
                     <td>৳{product.price}</td>
                     <td>124</td>
                     <td>

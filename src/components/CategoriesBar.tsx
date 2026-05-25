@@ -2,13 +2,9 @@ import React from 'react';
 import styles from './CategoriesBar.module.css';
 
 const categories = [
-  { name: "Offer Product", slug: "offer-product" },
-  { name: "Baby & Toys", slug: "baby-toys" },
-  { name: "Laptop Stands", slug: "laptop-stands" },
-  { name: "Home & Kitchen", slug: "home-kitchen" },
-  { name: "Home Appliances", slug: "home-appliances" },
-  { name: "Daily Life Products", slug: "daily-life-products" },
-  { name: "Kitchen Gloves", slug: "kitchen-gloves" }
+  { name: "ওয়াটারপ্রুফ চাদর", slug: "waterproof-chador" },
+  { name: "নরমাল চাদর", slug: "normal-chador" },
+  { name: "মশারী", slug: "moshari" }
 ];
 
 export default function CategoriesBar() {
