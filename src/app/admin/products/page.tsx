@@ -185,9 +185,9 @@ const AdminProductsPage: React.FC = () => {
                     </td>
                     <td>
                       <div className={styles.actionBtns}>
-                        <button className={`${styles.actionBtn} ${styles.editBtn}`} title="Edit">
+                        <Link href={`/admin/products/edit?id=${product.id}`} className={`${styles.actionBtn} ${styles.editBtn}`} title="Edit">
                           <HugeiconsIcon icon={PencilEdit01Icon} size={18} />
-                        </button>
+                        </Link>
                         <button
                           className={`${styles.actionBtn} ${styles.deleteBtn}`}
                           title="Delete"
