@@ -66,7 +66,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
         options.push({
           id: `${product.id}-6x7`,
           sizeKey: "6x7",
-          title: `${product.title} (6/7 Feet)`,
+          title: `${getBaseTitle(product.title)} (6/7 Feet)`,
           price: dynamicSizes["6x7"].price,
           originalPrice: dynamicSizes["6x7"].originalPrice,
           discount: disc,
@@ -84,7 +84,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
         options.push({
           id: `${product.id}-7x8`,
           sizeKey: "7x8",
-          title: `${product.title} (7/8 Feet)`,
+          title: `${getBaseTitle(product.title)} (7/8 Feet)`,
           price: dynamicSizes["7x8"].price,
           originalPrice: dynamicSizes["7x8"].originalPrice,
           discount: disc,
