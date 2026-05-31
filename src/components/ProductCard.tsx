@@ -41,7 +41,7 @@ export default function ProductCard({ id, slug, title, price, originalPrice, ima
 
   return (
     <div className={styles.card}>
-      <Link href={`/product/${slug}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link href={`/product/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         <div className={styles.imageContainer}>
           {discount > 0 && <span className={styles.badge}>-{discount}%</span>}
           {imageUrl ? (
