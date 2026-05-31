@@ -211,14 +211,14 @@ export default function CartPage() {
                     {
                       id: `${getBaseId(item.id)}-6x7`,
                       title: `${getBaseTitle(item.title)} (6/7 Feet)`,
-                      price: 1090,
+                      price: 1150,
                       sizeName: 'সাইজ, ৬ফুট x ৭ ফুট',
                       imageUrl: item.imageUrl
                     },
                     {
                       id: `${getBaseId(item.id)}-7x8`,
                       title: `${getBaseTitle(item.title)} (7/8 Feet)`,
-                      price: 1250,
+                      price: 1350,
                       sizeName: 'সাইজ, ৭ফুট x ৮ ফুট',
                       imageUrl: item.imageUrl
                     }
