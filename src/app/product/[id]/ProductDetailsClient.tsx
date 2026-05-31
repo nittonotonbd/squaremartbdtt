@@ -265,7 +265,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
 
         {/* Right: Product Info */}
         <div className={styles.productInfo}>
-          <h1 className={styles.title}>{selectedProduct.title}</h1>
+          <h1 className={styles.title}>{getBaseTitle(product.title)}</h1>
           
           <div className={styles.priceBlock}>
             <span className={styles.currentPrice}>৳{selectedProduct.price}</span>
