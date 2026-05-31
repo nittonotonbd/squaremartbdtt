@@ -10,52 +10,202 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 
 export default function ProductDetailsClient({ product }: { product: Product }) {
-  const isBedCover = product.title.toLowerCase().includes('waterproof bed cover') || product.id === 4 || product.id === 5;
+  // Parse dynamic sizes from description JSON
+  let parsedDescription = product.description;
+  let dynamicSizes: any = null;
 
-  const sizeOptions = [
-    {
-      id: 4,
-      slug: 'waterproof-bed-cover-6-7-feet',
-      title: 'Waterproof Bed Cover (6/7 Feet)',
-      price: 1090,
-      originalPrice: 1550,
-      discount: 30,
-      sizeName: 'সাইজ, ৬ফুট x ৭ ফুট',
-      imageUrl: 'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.4227430882981412.jpeg',
-      stockStatus: 'In Stock' as const,
-      isBestSeller: false,
-      galleryImages: [
-        'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.4227430882981412.jpeg'
-      ]
-    },
-    {
-      id: 5,
-      slug: 'waterproof-bed-cover-7-8-feet',
-      title: 'Waterproof Bed Cover (7/8 Feet)',
-      price: 1250,
-      originalPrice: 1550,
-      discount: 19,
-      sizeName: 'সাইজ, ৭ফুট x ৮ ফুট',
-      imageUrl: 'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.5863508889960549.jpeg',
-      stockStatus: 'In Stock' as const,
-      isBestSeller: true,
-      galleryImages: [
-        'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.5863508889960549.jpeg'
-      ]
+  try {
+    if (product.description && (product.description.trim().startsWith('{') || product.description.trim().startsWith('['))) {
+      const parsed = JSON.parse(product.description);
+      if (parsed && typeof parsed === 'object') {
+        parsedDescription = parsed.htmlDescription || '';
+        dynamicSizes = parsed.sizes || null;
+      }
     }
-  ];
+  } catch (e) {
+    console.error('Failed to parse serialized product description JSON:', e);
+  }
 
-  // Initialize selectedProduct
-  const initialSelected = isBedCover 
-    ? (sizeOptions.find(opt => opt.id === product.id) || sizeOptions[0])
-    : null;
+  const isBedCover = !!dynamicSizes || 
+                     product.title.toLowerCase().includes('waterproof') || 
+                     product.title.toLowerCase().includes('bed cover') || 
+                     product.title.includes('চাদর') || 
+                     product.category === 'ওয়াটারপ্রুফ চাদর' || 
+                     product.category === 'নরমাল চাদর' || 
+                     product.id === 4 || 
+                     product.id === 5;
 
-  const [selectedProduct, setSelectedProduct] = useState<any>(initialSelected || product);
-  const [activeImage, setActiveImage] = useState(selectedProduct.imageUrl);
+  const [selectedProduct, setSelectedProduct] = useState<any>(product);
+  const [activeImage, setActiveImage] = useState(product.imageUrl);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<'description' | 'policy'>('description');
   const { addToCart } = useCart();
   const router = useRouter();
+
+  // Dynamic Size Options loaded from database or JSON
+  const [sizeOptions, setSizeOptions] = useState<any[]>([]);
+
+  // Function to extract base title by removing size suffixes
+  const getBaseTitle = (title: string) => {
+    return title
+      .replace(/\s*\(6\/7\s*Feet\)/i, '')
+      .replace(/\s*\(7\/8\s*Feet\)/i, '')
+      .replace(/\s*\(৬\/৭\s*ফুট\)/i, '')
+      .replace(/\s*\(৭\/৮\s*ফুট\)/i, '')
+      .trim();
+  };
+
+  React.useEffect(() => {
+    // 1. If we have dynamic sizes in description JSON
+    if (dynamicSizes) {
+      const options: any[] = [];
+      if (dynamicSizes["6x7"] && dynamicSizes["6x7"].enabled) {
+        const disc = dynamicSizes["6x7"].originalPrice 
+          ? Math.round(((dynamicSizes["6x7"].originalPrice - dynamicSizes["6x7"].price) / dynamicSizes["6x7"].originalPrice) * 100)
+          : 0;
+        options.push({
+          id: `${product.id}-6x7`,
+          sizeKey: "6x7",
+          title: `${product.title} (6/7 Feet)`,
+          price: dynamicSizes["6x7"].price,
+          originalPrice: dynamicSizes["6x7"].originalPrice,
+          discount: disc,
+          sizeName: 'সাইজ, ৬ফুট x ৭ ফুট',
+          imageUrl: dynamicSizes["6x7"].image || product.imageUrl,
+          stockStatus: product.stockStatus,
+          isBestSeller: false,
+          galleryImages: dynamicSizes["6x7"].image ? [dynamicSizes["6x7"].image, ...(product.galleryImages || [])] : (product.galleryImages || [product.imageUrl])
+        });
+      }
+      if (dynamicSizes["7x8"] && dynamicSizes["7x8"].enabled) {
+        const disc = dynamicSizes["7x8"].originalPrice 
+          ? Math.round(((dynamicSizes["7x8"].originalPrice - dynamicSizes["7x8"].price) / dynamicSizes["7x8"].originalPrice) * 100)
+          : 0;
+        options.push({
+          id: `${product.id}-7x8`,
+          sizeKey: "7x8",
+          title: `${product.title} (7/8 Feet)`,
+          price: dynamicSizes["7x8"].price,
+          originalPrice: dynamicSizes["7x8"].originalPrice,
+          discount: disc,
+          sizeName: 'সাইজ, ৭ফুট x ৮ ফুট',
+          imageUrl: dynamicSizes["7x8"].image || product.imageUrl,
+          stockStatus: product.stockStatus,
+          isBestSeller: true,
+          galleryImages: dynamicSizes["7x8"].image ? [dynamicSizes["7x8"].image, ...(product.galleryImages || [])] : (product.galleryImages || [product.imageUrl])
+        });
+      }
+
+      setSizeOptions(options);
+      if (options.length > 0) {
+        setSelectedProduct(options[0]);
+        setActiveImage(options[0].imageUrl);
+      }
+      return;
+    }
+
+    // 2. Fallback to old dynamic query by base title (for backwards compatibility with old DB setup)
+    const fetchSizes = async () => {
+      try {
+        const { getProducts } = await import('../../../data/products');
+        const allProducts = await getProducts();
+        
+        const currentBase = getBaseTitle(product.title);
+        
+        // Find matching variations (products with same base title)
+        const matching = allProducts.filter(p => getBaseTitle(p.title) === currentBase);
+        
+        if (matching.length > 1) {
+          const options = matching.map(p => {
+            const is6x7 = p.title.toLowerCase().includes('6/7') || p.title.includes('৬/৭');
+            const sizeName = is6x7 ? 'সাইজ, ৬ফুট x ৭ ফুট' : 'সাইজ, ৭ফুট x ৮ ফুট';
+            const disc = p.originalPrice 
+               ? Math.round(((p.originalPrice - p.price) / p.originalPrice) * 100)
+               : 0;
+               
+            return {
+              id: p.id,
+              slug: p.slug,
+              title: p.title,
+              price: p.price,
+              originalPrice: p.originalPrice,
+              discount: disc,
+              sizeName,
+              imageUrl: p.imageUrl,
+              stockStatus: p.stockStatus,
+              isBestSeller: !is6x7,
+              galleryImages: p.galleryImages || [p.imageUrl]
+            };
+          });
+
+          // Sort so 6/7 Feet comes first
+          options.sort((a, b) => {
+            const aIs6x7 = a.title.toLowerCase().includes('6/7') || a.title.includes('৬/৭');
+            const bIs6x7 = b.title.toLowerCase().includes('6/7') || b.title.includes('৬/৭');
+            if (aIs6x7 && !bIs6x7) return -1;
+            if (!aIs6x7 && bIs6x7) return 1;
+            return 0;
+          });
+
+          setSizeOptions(options);
+          
+          // Select current product
+          const current = options.find(o => o.id === product.id);
+          if (current) {
+            setSelectedProduct(current);
+            setActiveImage(current.imageUrl);
+          }
+        } else {
+          // Fallback static hardcoded size list for existing Waterproof Bed Cover items if not matched dynamically
+          const fallbackList = [
+            {
+              id: 4,
+              slug: 'waterproof-bed-cover-6-7-feet',
+              title: 'Waterproof Bed Cover (6/7 Feet)',
+              price: 1090,
+              originalPrice: 1550,
+              discount: 30,
+              sizeName: 'সাইজ, ৬ফুট x ৭ ফুট',
+              imageUrl: 'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.4227430882981412.jpeg',
+              stockStatus: 'In Stock' as const,
+              isBestSeller: false,
+              galleryImages: [
+                'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.4227430882981412.jpeg'
+              ]
+            },
+            {
+              id: 5,
+              slug: 'waterproof-bed-cover-7-8-feet',
+              title: 'Waterproof Bed Cover (7/8 Feet)',
+              price: 1250,
+              originalPrice: 1550,
+              discount: 19,
+              sizeName: 'সাইজ, ৭ফুট x ৮ ফুট',
+              imageUrl: 'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.5863508889960549.jpeg',
+              stockStatus: 'In Stock' as const,
+              isBestSeller: true,
+              galleryImages: [
+                'https://ugtzrchkumfbixffhfzz.supabase.co/storage/v1/object/public/products/0.5863508889960549.jpeg'
+              ]
+            }
+          ];
+
+          if (product.id === 4 || product.id === 5 || product.title.toLowerCase().includes('waterproof bed cover')) {
+            setSizeOptions(fallbackList);
+            const current = fallbackList.find(o => o.id === product.id) || fallbackList[0];
+            setSelectedProduct(current);
+            setActiveImage(current.imageUrl);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching size variants:', err);
+      }
+    };
+
+    if (isBedCover) {
+      fetchSizes();
+    }
+  }, [product, isBedCover]);
 
   const discount = selectedProduct.originalPrice 
     ? Math.round(((selectedProduct.originalPrice - selectedProduct.price) / selectedProduct.originalPrice) * 100) 
@@ -63,7 +213,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
 
   const images = selectedProduct.galleryImages || [selectedProduct.imageUrl];
 
-  const handleSizeSelect = (opt: typeof sizeOptions[0]) => {
+  const handleSizeSelect = (opt: any) => {
     setSelectedProduct(opt);
     setActiveImage(opt.imageUrl);
   };
@@ -140,7 +290,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
           )}
 
           {/* Size Selection Section */}
-          {isBedCover && (
+          {isBedCover && sizeOptions.length > 0 && (
             <div className={styles.sizeSelectionBlock}>
               <h3 className={styles.sizeSelectHeading}>প্রোডাক্ট এর সাইজ নির্বাচন করুন</h3>
               <div className={styles.sizeOptionsGrid}>
@@ -223,7 +373,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
         </div>
         <div className={styles.tabContent}>
           {activeTab === 'description' ? (
-            <div dangerouslySetInnerHTML={{ __html: product.description || 'No description available for this product.' }} />
+            <div dangerouslySetInnerHTML={{ __html: parsedDescription || 'No description available for this product.' }} />
           ) : (
             <div>
               <h3>Delivery Policy</h3>

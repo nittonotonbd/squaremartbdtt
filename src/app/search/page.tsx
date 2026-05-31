@@ -1,27 +1,58 @@
 "use client";
 
-import React, { Suspense } from 'react';
+import React, { Suspense, useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import ProductGrid from '../../components/ProductGrid';
-import { mockProducts } from '../../data/products';
+import { getProducts, Product } from '../../data/products';
 import styles from './Search.module.css';
 
 function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   
-  const filteredProducts = mockProducts.filter(product => 
-    product.title.toLowerCase().includes(query.toLowerCase()) ||
-    (product.description && product.description.toLowerCase().includes(query.toLowerCase()))
-  );
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await getProducts();
+        setProducts(data);
+      } catch (err) {
+        console.error('Error fetching search products:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const filteredProducts = useMemo(() => {
+    if (!query) return [];
+    
+    return products.filter(product => 
+      product.title.toLowerCase().includes(query.toLowerCase()) ||
+      (product.description && product.description.toLowerCase().includes(query.toLowerCase()))
+    );
+  }, [products, query]);
+
+  if (loading) {
+    return (
+      <main className={styles.searchMain}>
+        <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-light)' }}>
+          <p>Searching products...</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.searchMain}>
       <div className={styles.searchHeader}>
         <h1>Search Results for "{query}"</h1>
-        <p>{filteredProducts.length} products found</p>
+        <p>{filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'} found</p>
       </div>
       
       {filteredProducts.length > 0 ? (
@@ -46,3 +77,4 @@ export default function SearchPage() {
     </>
   );
 }
+

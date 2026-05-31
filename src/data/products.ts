@@ -193,3 +193,48 @@ export function getRelatedProducts(currentId: number, limit: number = 4): Produc
   return mockProducts.filter(p => p.id !== currentId).slice(0, limit);
 }
 
+export const getBaseTitle = (title: string): string => {
+  return title
+    .replace(/\s*\(6\/7\s*Feet\)/i, '')
+    .replace(/\s*\(7\/8\s*Feet\)/i, '')
+    .replace(/\s*\(৬\/৭\s*ফুট\)/i, '')
+    .replace(/\s*\(৭\/৮\s*ফুট\)/i, '')
+    .trim();
+};
+
+export const groupProductsByBaseTitle = (products: Product[]): Product[] => {
+  const seen = new Set<string>();
+  const uniqueProducts: Product[] = [];
+
+  for (const p of products) {
+    const baseTitle = getBaseTitle(p.title);
+    if (!seen.has(baseTitle)) {
+      seen.add(baseTitle);
+      
+      // Find all products sharing this base title to get the lowest price
+      const variations = products.filter(item => getBaseTitle(item.title) === baseTitle);
+      let lowestPrice = p.price;
+      let lowestOriginalPrice = p.originalPrice;
+      
+      if (variations.length > 1) {
+        lowestPrice = Math.min(...variations.map(v => v.price));
+        // Find the variant with the lowest price to get its matching original price
+        const cheapestVariant = variations.find(v => v.price === lowestPrice);
+        if (cheapestVariant) {
+          lowestOriginalPrice = cheapestVariant.originalPrice;
+        }
+      }
+
+      uniqueProducts.push({
+        ...p,
+        title: baseTitle,
+        price: lowestPrice,
+        originalPrice: lowestOriginalPrice
+      });
+    }
+  }
+
+  return uniqueProducts;
+};
+
+

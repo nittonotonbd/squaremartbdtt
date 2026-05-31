@@ -36,6 +36,42 @@ const AdminProductsPage: React.FC = () => {
     fetchProducts();
   }, []);
 
+  const parsedProducts = React.useMemo(() => {
+    return products.map(p => {
+      let sizesCount = 1;
+      let priceRange = `৳${p.price}`;
+
+      try {
+        if (p.description && (p.description.trim().startsWith('{') || p.description.trim().startsWith('['))) {
+          const parsed = JSON.parse(p.description);
+          if (parsed && typeof parsed === 'object' && parsed.sizes) {
+            const sizes = parsed.sizes;
+            const activeSizes = Object.keys(sizes).filter(key => sizes[key] && sizes[key].enabled);
+            
+            if (activeSizes.length > 0) {
+              sizesCount = activeSizes.length;
+              const prices = activeSizes.map(key => sizes[key].price);
+              const minPrice = Math.min(...prices);
+              const maxPrice = Math.max(...prices);
+              
+              priceRange = minPrice === maxPrice 
+                ? `৳${minPrice}` 
+                : `৳${minPrice} - ৳${maxPrice}`;
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Error parsing product sizes in admin list:', e);
+      }
+
+      return {
+        ...p,
+        sizesCount,
+        priceRange
+      };
+    });
+  }, [products]);
+
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this product?')) {
       const { error } = await supabase
@@ -108,8 +144,8 @@ const AdminProductsPage: React.FC = () => {
                 Array.from({ length: 8 }).map((_, i) => (
                   <TableRowSkeleton key={i} columns={6} />
                 ))
-              ) : products.length > 0 ? (
-                products.map((product) => (
+              ) : parsedProducts.length > 0 ? (
+                parsedProducts.map((product) => (
                   <tr key={product.id}>
                     <td>
                       <div className={styles.productInfoCell}>
@@ -120,11 +156,27 @@ const AdminProductsPage: React.FC = () => {
                           height={40}
                           className={styles.productThumb}
                         />
-                        <span className={styles.productName}>{product.title}</span>
+                        <span className={styles.productName}>
+                          {product.title}
+                          {product.sizesCount > 1 && (
+                            <span style={{ 
+                              marginLeft: '8px', 
+                              padding: '2px 6px', 
+                              fontSize: '11px', 
+                              background: 'rgba(255, 90, 0, 0.1)', 
+                              color: 'var(--primary-color)', 
+                              borderRadius: '4px', 
+                              fontWeight: 'bold',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {product.sizesCount} Sizes
+                            </span>
+                          )}
+                        </span>
                       </div>
                     </td>
                     <td>{product.category || 'N/A'}</td>
-                    <td>৳{product.price}</td>
+                    <td>{product.priceRange}</td>
                     <td>124</td>
                     <td>
                       <span className={`${styles.status} ${product.stockStatus === 'In Stock' ? styles.statusSuccess : styles.statusPending}`}>
@@ -159,7 +211,7 @@ const AdminProductsPage: React.FC = () => {
 
         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p style={{ color: 'var(--text-gray)', fontSize: '14px' }}>
-            Showing 1 to {products.length} of {products.length} entries
+            Showing 1 to {parsedProducts.length} of {parsedProducts.length} entries
           </p>
 
           <div style={{ display: 'flex', gap: '8px' }}>
