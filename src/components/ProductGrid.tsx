@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import ProductCard from './ProductCard';
@@ -16,16 +17,19 @@ interface Product {
 interface ProductGridProps {
   title: string;
   products: Product[];
+  showSeeMore?: boolean;
 }
 
-export default function ProductGrid({ title, products }: ProductGridProps) {
+export default function ProductGrid({ title, products, showSeeMore = false }: ProductGridProps) {
   return (
     <section className={styles.section}>
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>
-        <a href="#" className={styles.seeMore}>
-          See More <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} style={{verticalAlign: 'middle', marginLeft: '4px'}} />
-        </a>
+        {showSeeMore && (
+          <Link href="/products" className={styles.seeMore}>
+            See More <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} style={{verticalAlign: 'middle', marginLeft: '4px'}} />
+          </Link>
+        )}
       </div>
       <div className={styles.grid}>
         {products.map(product => (

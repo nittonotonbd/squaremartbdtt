@@ -17,7 +17,7 @@ export default async function Home() {
           Nittonotonbd - Best Online Shopping in Bangladesh for Electronics & Lifestyle
         </h1>
         <HeroBanner />
-        <ProductGrid title="All Products" products={products} />
+        <ProductGrid title="All Products" products={products.slice(0, 8)} showSeeMore={true} />
       </main>
       <Footer />
     </>
