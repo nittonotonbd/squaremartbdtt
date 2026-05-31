@@ -49,7 +49,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     notFound();
   }
 
-  const relatedProducts = getRelatedProducts(product.id, 4);
+  const relatedProducts = await getRelatedProducts(product.id, 4);
 
   return (
     <>

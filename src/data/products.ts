@@ -189,8 +189,14 @@ export async function getProductsByCategory(category: string): Promise<Product[]
   }));
 }
 
-export function getRelatedProducts(currentId: number, limit: number = 4): Product[] {
-  return mockProducts.filter(p => p.id !== currentId).slice(0, limit);
+export async function getRelatedProducts(currentId: number, limit: number = 4): Promise<Product[]> {
+  try {
+    const products = await getProducts();
+    return products.filter(p => p.id !== currentId).slice(0, limit);
+  } catch (err) {
+    console.error('Error in getRelatedProducts:', err);
+    return mockProducts.filter(p => p.id !== currentId).slice(0, limit);
+  }
 }
 
 export const getBaseTitle = (title: string): string => {
