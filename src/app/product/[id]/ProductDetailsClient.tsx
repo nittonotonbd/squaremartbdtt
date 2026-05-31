@@ -5,14 +5,15 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useCart } from '../../../context/CartContext';
 import styles from './product.module.css';
-import { Product } from '../../../data/products';
+import { Product, cleanTitle } from '../../../data/products';
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 
 export default function ProductDetailsClient({ product }: { product: Product }) {
-  // Parse dynamic sizes from description JSON
+  // Parse dynamic sizes and product code from description JSON
   let parsedDescription = product.description;
   let dynamicSizes: any = null;
+  let productCode = '';
 
   try {
     if (product.description && (product.description.trim().startsWith('{') || product.description.trim().startsWith('['))) {
@@ -20,6 +21,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
       if (parsed && typeof parsed === 'object') {
         parsedDescription = parsed.htmlDescription || '';
         dynamicSizes = parsed.sizes || null;
+        productCode = parsed.product_code || '';
       }
     }
   } catch (e) {
@@ -265,7 +267,7 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
 
         {/* Right: Product Info */}
         <div className={styles.productInfo}>
-          <h1 className={styles.title}>{getBaseTitle(product.title)}</h1>
+          <h1 className={styles.title}>{cleanTitle(product.title, productCode)} {productCode ? `(${productCode})` : ''}</h1>
           
           <div className={styles.priceBlock}>
             <span className={styles.currentPrice}>৳{selectedProduct.price}</span>
@@ -282,6 +284,12 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
               {selectedProduct.stockStatus}
             </span>
           </div>
+
+          {productCode && (
+            <div className={styles.statusBlock} style={{ marginTop: '4px' }}>
+              Product Code: <span style={{ fontWeight: '600', color: 'var(--primary-color)' }}>{productCode}</span>
+            </div>
+          )}
 
           {selectedProduct.callToOrder && (
             <div className={styles.callToOrder}>

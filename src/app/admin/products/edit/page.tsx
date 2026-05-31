@@ -24,6 +24,7 @@ const EditProductForm: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [fetching, setFetching] = React.useState(true);
   
+
   const [formData, setFormData] = React.useState({
     title: '',
     description: '',
@@ -33,7 +34,8 @@ const EditProductForm: React.FC = () => {
     gallery_images: ['', '', '', ''],
     category: '',
     stock_status: 'In Stock',
-    call_to_order: '01887245556'
+    call_to_order: '01887245556',
+    product_code: ''
   });
   const [uploadingIndex, setUploadingIndex] = React.useState<number | null>(null);
 
@@ -69,6 +71,7 @@ const EditProductForm: React.FC = () => {
           let parsedDesc = data.description || '';
           let dynamicSizes: any = null;
           let isSizeEnabled = false;
+          let loadedCode = '';
 
           try {
             if (data.description && (data.description.trim().startsWith('{') || data.description.trim().startsWith('['))) {
@@ -77,6 +80,7 @@ const EditProductForm: React.FC = () => {
                 parsedDesc = parsed.htmlDescription || '';
                 dynamicSizes = parsed.sizes || null;
                 isSizeEnabled = !!dynamicSizes;
+                loadedCode = parsed.product_code || '';
               }
             }
           } catch (e) {
@@ -118,7 +122,8 @@ const EditProductForm: React.FC = () => {
             gallery_images: gallery.slice(0, 4),
             category: data.category || '',
             stock_status: data.stock_status || 'In Stock',
-            call_to_order: data.call_to_order || '01887245556'
+            call_to_order: data.call_to_order || '01887245556',
+            product_code: loadedCode
           });
         }
       } catch (err) {
@@ -232,7 +237,7 @@ const EditProductForm: React.FC = () => {
       const image_url = formData.image_url || activeGallery[0];
       const active_category = formData.category;
 
-      let serializedDescription = formData.description;
+      let serializedDescription = '';
       let defaultPrice = parseFloat(formData.price);
       let defaultOriginalPrice = formData.original_price ? parseFloat(formData.original_price) : null;
       let defaultImage = image_url;
@@ -271,7 +276,8 @@ const EditProductForm: React.FC = () => {
 
         serializedDescription = JSON.stringify({
           htmlDescription: formData.description,
-          sizes: sizesData
+          sizes: sizesData,
+          product_code: formData.product_code || ''
         });
 
         defaultPrice = size6x7.enabled 
@@ -285,6 +291,12 @@ const EditProductForm: React.FC = () => {
         defaultImage = size6x7.enabled 
           ? (size6x7Image || image_url) 
           : (size7x8Image || image_url);
+      } else {
+        serializedDescription = JSON.stringify({
+          htmlDescription: formData.description,
+          sizes: null,
+          product_code: formData.product_code || ''
+        });
       }
 
       const slug = generateSlug(formData.title);
@@ -359,15 +371,27 @@ const EditProductForm: React.FC = () => {
           <div className={styles.formSection}>
             <h2 className={styles.sectionTitle} style={{ marginBottom: '20px' }}>General Information</h2>
             
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Product Title *</label>
-              <input 
-                type="text" 
-                className={styles.input} 
-                placeholder="e.g. Premium Wireless Headphones" 
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Product Title *</label>
+                <input 
+                  type="text" 
+                  className={styles.input} 
+                  placeholder="e.g. Premium Wireless Headphones" 
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Product Code (যেমন: Y-61)</label>
+                <input 
+                  type="text" 
+                  className={styles.input} 
+                  placeholder="e.g. Y-61" 
+                  value={formData.product_code || ''}
+                  onChange={(e) => setFormData({ ...formData, product_code: e.target.value })}
+                />
+              </div>
             </div>
             
             <div className={styles.formGroup}>

@@ -21,6 +21,7 @@ const AddProductPage: React.FC = () => {
   const router = useRouter();
   const [loading, setLoading] = React.useState(false);
   
+
   const [formData, setFormData] = React.useState({
     title: '',
     description: '',
@@ -30,7 +31,8 @@ const AddProductPage: React.FC = () => {
     gallery_images: ['', '', '', ''],
     category: '',
     stock_status: 'In Stock',
-    call_to_order: '01887245556'
+    call_to_order: '01887245556',
+    product_code: ''
   });
   const [uploadingIndex, setUploadingIndex] = React.useState<number | null>(null);
 
@@ -179,7 +181,8 @@ const AddProductPage: React.FC = () => {
 
         const serializedDescription = JSON.stringify({
           htmlDescription: formData.description,
-          sizes: sizesData
+          sizes: sizesData,
+          product_code: formData.product_code || ''
         });
 
         // Determine default representative price & original price
@@ -215,12 +218,17 @@ const AddProductPage: React.FC = () => {
         if (error) throw error;
       } else {
         const slug = generateSlug(formData.title);
+        const serializedDescription = JSON.stringify({
+          htmlDescription: formData.description,
+          sizes: null,
+          product_code: formData.product_code || ''
+        });
         const { error } = await supabase
           .from('products')
           .insert({
             title: formData.title,
             slug: slug,
-            description: formData.description,
+            description: serializedDescription,
             price: parseFloat(formData.price),
             original_price: formData.original_price ? parseFloat(formData.original_price) : null,
             image_url: image_url,
@@ -275,15 +283,27 @@ const AddProductPage: React.FC = () => {
           <div className={styles.formSection}>
             <h2 className={styles.sectionTitle} style={{ marginBottom: '20px' }}>General Information</h2>
             
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Product Title *</label>
-              <input 
-                type="text" 
-                className={styles.input} 
-                placeholder="e.g. Premium Wireless Headphones" 
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '16px' }}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Product Title *</label>
+                <input 
+                  type="text" 
+                  className={styles.input} 
+                  placeholder="e.g. Premium Wireless Headphones" 
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Product Code (যেমন: Y-61)</label>
+                <input 
+                  type="text" 
+                  className={styles.input} 
+                  placeholder="e.g. Y-61" 
+                  value={formData.product_code || ''}
+                  onChange={(e) => setFormData({ ...formData, product_code: e.target.value })}
+                />
+              </div>
             </div>
             
             <div className={styles.formGroup}>

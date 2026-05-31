@@ -12,6 +12,7 @@ export interface Product {
   category?: string;
   stockStatus: 'In Stock' | 'Out Of Stock';
   callToOrder?: string;
+  productCode?: string;
 }
 
 export const mockProducts: Product[] = [
@@ -70,6 +71,29 @@ const generateSlug = (text: string) => {
     .replace(/^-+|-+$/g, '');
 };
 
+const extractProductCode = (description?: string, title?: string): string => {
+  try {
+    if (description && (description.trim().startsWith('{') || description.trim().startsWith('['))) {
+      const parsed = JSON.parse(description);
+      if (parsed && typeof parsed === 'object' && parsed.product_code) {
+        return parsed.product_code;
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
+
+  // Fallback to title matching
+  if (title) {
+    const match = title.match(/\b(Y-\d+|W\d+|Y\d+|W-\d+)\b/i);
+    if (match) {
+      return match[1].toUpperCase();
+    }
+  }
+
+  return '';
+};
+
 export async function getProducts(): Promise<Product[]> {
   const { data, error } = await supabase
     .from('products')
@@ -92,7 +116,8 @@ export async function getProducts(): Promise<Product[]> {
     description: p.description,
     category: p.category,
     stockStatus: p.stock_status,
-    callToOrder: p.call_to_order
+    callToOrder: p.call_to_order,
+    productCode: extractProductCode(p.description, p.title)
   }));
 }
 
@@ -116,7 +141,8 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
       description: data.description,
       category: data.category,
       stockStatus: data.stock_status,
-      callToOrder: data.call_to_order
+      callToOrder: data.call_to_order,
+      productCode: extractProductCode(data.description, data.title)
     };
   }
 
@@ -158,7 +184,8 @@ export async function getProductById(id: number): Promise<Product | undefined> {
     description: data.description,
     category: data.category,
     stockStatus: data.stock_status,
-    callToOrder: data.call_to_order
+    callToOrder: data.call_to_order,
+    productCode: extractProductCode(data.description, data.title)
   };
 }
 
@@ -185,7 +212,8 @@ export async function getProductsByCategory(category: string): Promise<Product[]
     description: p.description,
     category: p.category,
     stockStatus: p.stock_status,
-    callToOrder: p.call_to_order
+    callToOrder: p.call_to_order,
+    productCode: extractProductCode(p.description, p.title)
   }));
 }
 
@@ -205,6 +233,22 @@ export const getBaseTitle = (title: string): string => {
     .replace(/\s*\(7\/8\s*Feet\)/i, '')
     .replace(/\s*\(৬\/৭\s*ফুট\)/i, '')
     .replace(/\s*\(৭\/৮\s*ফুট\)/i, '')
+    .trim();
+};
+
+export const cleanTitle = (title: string, code?: string): string => {
+  let cleaned = title;
+  if (code) {
+    const escapedCode = code.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const regex = new RegExp(`\\s*\\b${escapedCode}\\b\\s*`, 'i');
+    cleaned = cleaned.replace(regex, ' ');
+  }
+  return cleaned
+    .replace(/\s*\(6\/7\s*Feet\)/i, '')
+    .replace(/\s*\(7\/8\s*Feet\)/i, '')
+    .replace(/\s*\(৬\/৭\s*ফুট\)/i, '')
+    .replace(/\s*\(৭\/৮\s*ফুট\)/i, '')
+    .replace(/\s+/g, ' ')
     .trim();
 };
 

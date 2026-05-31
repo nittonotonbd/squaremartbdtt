@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
+import { cleanTitle } from '../data/products';
 
 interface ProductCardProps {
   id: number;
@@ -14,12 +15,13 @@ interface ProductCardProps {
   price: number;
   originalPrice?: number;
   imageUrl?: string;
+  productCode?: string;
 }
 
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function ProductCard({ id, slug, title, price, originalPrice, imageUrl }: ProductCardProps) {
+export default function ProductCard({ id, slug, title, price, originalPrice, imageUrl, productCode }: ProductCardProps) {
   const discount = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   const { addToCart } = useCart();
   const router = useRouter();
@@ -58,11 +60,11 @@ export default function ProductCard({ id, slug, title, price, originalPrice, ima
           )}
         </div>
         <div className={styles.details}>
-          <h3 className={styles.title}>{title}</h3>
-          <div className={styles.priceContainer}>
+          <h3 className={styles.title}>{cleanTitle(title, productCode)} {productCode ? `(${productCode})` : ''}</h3>
+          {/* <div className={styles.priceContainer}>
             <span className={styles.currentPrice}>৳{price}</span>
             {originalPrice && <span className={styles.originalPrice}>৳{originalPrice}</span>}
-          </div>
+          </div> */}
         </div>
       </Link>
       <div className={styles.buttonContainer}>

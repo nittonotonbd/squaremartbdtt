@@ -12,6 +12,7 @@ interface Product {
   price: number;
   originalPrice?: number;
   imageUrl?: string;
+  productCode?: string;
 }
 
 interface ProductGridProps {
@@ -41,6 +42,7 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
             price={product.price}
             originalPrice={product.originalPrice}
             imageUrl={product.imageUrl}
+            productCode={product.productCode}
           />
         ))}
       </div>
