@@ -36,6 +36,25 @@ const isOptionActive = (itemId: any, optId: any, itemPrice: number, optPrice: nu
   return false;
 };
 
+const BANGLADESH_DISTRICTS = [
+  'ঢাকা সিটি হোম ডেলিভারি',
+  'ঢাকা জেলা হোম ডেলিভারি',
+  'চট্টগ্রাম হোম ডেলিভারি',
+  'সিলেট হোম ডেলিভারি',
+  'গাজীপুর হোম ডেলিভারি',
+  'নারায়ণগঞ্জ হোম ডেলিভারি',
+  'কুমিল্লা হোম ডেলিভারি',
+  'বগুড়া হোম ডেলিভারি',
+  'খুলনা হোম ডেলিভারি',
+  'রাজশাহী হোম ডেলিভারি',
+  'বরিশাল হোম ডেলিভারি',
+  'রংপুর হোম ডেলিভারি',
+  'ময়মনসিংহ হোম ডেলিভারি',
+  'যশোর হোম ডেলিভারি',
+  'নোয়াখালী হোম ডেলিভারি',
+  'ফেনী হোম ডেলিভারি'
+];
+
 export default function CartPage() {
   const router = useRouter();
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart, changeCartItemProduct } = useCart();
@@ -45,6 +64,9 @@ export default function CartPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderResult, setOrderResult] = useState<{ id: any; name: string; total: number } | null>(null);
+  
+  const [address, setAddress] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -156,10 +178,38 @@ export default function CartPage() {
 
               </div>
               
-              <div className={styles.formGroup}>
+              <div className={styles.formGroup} style={{ position: 'relative' }}>
                 <label>আপনার সম্পূর্ণ ঠিকানা</label>
-                <input type="text" name="address" placeholder="আপনার সম্পূর্ণ ঠিকানা" />
-
+                <input 
+                  type="text" 
+                  name="address" 
+                  placeholder="আপনার সম্পূর্ণ ঠিকানা (সিলেক্ট করতে এখানে ক্লিক করুন)" 
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  onFocus={() => setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                />
+                
+                {showSuggestions && (
+                  <div className={styles.suggestionsContainer}>
+                    <div className={styles.suggestionsHeader}>আপনার এলাকা সিলেক্ট করুন:</div>
+                    <div className={styles.suggestionsGrid}>
+                      {BANGLADESH_DISTRICTS.map((dist) => (
+                        <button
+                          key={dist}
+                          type="button"
+                          className={styles.suggestionBtn}
+                          onClick={() => {
+                            setAddress(dist + ', ');
+                            setShowSuggestions(false);
+                          }}
+                        >
+                          {dist}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className={styles.formGroup}>
