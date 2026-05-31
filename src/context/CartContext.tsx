@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
 export interface CartItem {
-  id: number;
+  id: number | string;
   title: string;
   price: number;
   imageUrl?: string;
@@ -12,12 +12,12 @@ export interface CartItem {
 
 interface CartContextType {
   cartItems: CartItem[];
-  addToCart: (product: { id: number; title: string; price: number; imageUrl?: string }, quantity?: number) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  addToCart: (product: { id: number | string; title: string; price: number; imageUrl?: string }, quantity?: number) => void;
+  removeFromCart: (id: number | string) => void;
+  updateQuantity: (id: number | string, quantity: number) => void;
   clearCart: () => void;
   getCartTotal: () => number;
-  changeCartItemProduct: (oldId: number, newProduct: { id: number; title: string; price: number; imageUrl?: string }) => void;
+  changeCartItemProduct: (oldId: number | string, newProduct: { id: number | string; title: string; price: number; imageUrl?: string }) => void;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
 }
 
@@ -56,7 +56,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }, 3500);
   };
 
-  const addToCart = (product: { id: number; title: string; price: number; imageUrl?: string }, quantity: number = 1) => {
+  const addToCart = (product: { id: number | string; title: string; price: number; imageUrl?: string }, quantity: number = 1) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === product.id);
       if (existingItem) {
@@ -69,11 +69,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     showToast(`${quantity}টি পণ্য সফলভাবে কার্টে যোগ করা হয়েছে!`, "success");
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: number | string) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: number | string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
@@ -83,7 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
-  const changeCartItemProduct = (oldId: number, newProduct: { id: number; title: string; price: number; imageUrl?: string }) => {
+  const changeCartItemProduct = (oldId: number | string, newProduct: { id: number | string; title: string; price: number; imageUrl?: string }) => {
     setCartItems((prevItems) => {
       const oldItem = prevItems.find((item) => item.id === oldId);
       if (!oldItem) return prevItems;
