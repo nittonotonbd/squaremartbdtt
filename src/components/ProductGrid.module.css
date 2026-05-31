@@ -68,6 +68,19 @@
   border-color: var(--primary-color);
 }
 
+.pageBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--bg-white);
+  color: var(--text-light);
+  border-color: var(--border-color);
+}
+
+.pageBtn:disabled:hover {
+  border-color: var(--border-color);
+  color: var(--text-light);
+}
+
 @media (max-width: 1024px) {
   .grid {
     grid-template-columns: repeat(4, 1fr);

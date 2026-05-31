@@ -1,4 +1,6 @@
-import React from 'react';
+"use client";
+
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ArrowLeft01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
@@ -22,8 +24,25 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({ title, products, showSeeMore = false }: ProductGridProps) {
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const activePage = Math.min(Math.max(1, currentPage), totalPages || 1);
+
+  const startIndex = (activePage - 1) * itemsPerPage;
+  const displayedProducts = products.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    const element = document.getElementById('product-grid-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section className={styles.section}>
+    <section id="product-grid-section" className={styles.section}>
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>
         {showSeeMore && (
@@ -33,7 +52,7 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
         )}
       </div>
       <div className={styles.grid}>
-        {products.map(product => (
+        {displayedProducts.map(product => (
           <ProductCard 
             key={product.id}
             id={product.id}
@@ -46,17 +65,38 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
           />
         ))}
       </div>
-      <div className={styles.pagination}>
-        <button className={styles.pageBtn} aria-label="Previous page">
-          <HugeiconsIcon icon={ArrowLeft01Icon} size={16} color="currentColor" strokeWidth={2} />
-        </button>
-        <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
-        <button className={styles.pageBtn}>2</button>
-        <button className={styles.pageBtn}>3</button>
-        <button className={styles.pageBtn} aria-label="Next page">
-          <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} />
-        </button>
-      </div>
+      
+      {totalPages > 1 && (
+        <div className={styles.pagination}>
+          <button 
+            className={styles.pageBtn} 
+            onClick={() => handlePageChange(activePage - 1)}
+            disabled={activePage === 1}
+            aria-label="Previous page"
+          >
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={16} color="currentColor" strokeWidth={2} />
+          </button>
+          
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              className={`${styles.pageBtn} ${activePage === page ? styles.active : ''}`}
+              onClick={() => handlePageChange(page)}
+            >
+              {page}
+            </button>
+          ))}
+          
+          <button 
+            className={styles.pageBtn} 
+            onClick={() => handlePageChange(activePage + 1)}
+            disabled={activePage === totalPages}
+            aria-label="Next page"
+          >
+            <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} />
+          </button>
+        </div>
+      )}
     </section>
   );
 }
