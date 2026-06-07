@@ -16,7 +16,7 @@
   background: var(--bg-white);
   padding: 30px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .formHeader {
@@ -159,7 +159,7 @@
   background: var(--bg-white);
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .summaryTable {
@@ -290,10 +290,31 @@
   font-weight: 700;
 }
 
-.colProduct { flex: 4; display: flex; align-items: center; gap: 10px; }
-.colPrice { flex: 2; text-align: left; }
-.colQty { flex: 2; text-align: center; }
-.colTotal { flex: 2; text-align: right; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.colProduct {
+  flex: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.colPrice {
+  flex: 2;
+  text-align: left;
+}
+
+.colQty {
+  flex: 2;
+  text-align: center;
+}
+
+.colTotal {
+  flex: 2;
+  text-align: right;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
 
 .itemImage {
   width: 40px;
@@ -382,60 +403,9 @@
   .layout {
     flex-direction: column;
   }
-  .formSection, .summarySection {
+
+  .formSection,
+  .summarySection {
     width: 100%;
   }
 }
-
-/* Address Suggestions Styles */
-.suggestionsContainer {
-  margin-top: 10px;
-  background-color: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  animation: fadeIn 0.2s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.suggestionsHeader {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 12px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 6px;
-}
-
-.suggestionsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
-}
-
-.suggestionBtn {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-dark);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-align: center;
-  white-space: normal;
-}
-
-.suggestionBtn:hover {
-  background-color: red;
-  color: #ffffff;
-  border-color: red;
-  transform: translateY(-1px);
-}
-

@@ -144,6 +144,7 @@ const AddProductPage: React.FC = () => {
       const activeGallery = formData.gallery_images.filter(img => img !== '');
       const image_url = formData.image_url || activeGallery[0];
       const active_category = formData.category;
+      const slug = generateSlug(formData.title);
 
       if (enableSizes) {
         // Validate size inputs
@@ -198,8 +199,6 @@ const AddProductPage: React.FC = () => {
           ? (size6x7Image || image_url) 
           : (size7x8Image || image_url);
 
-        const slug = generateSlug(formData.title);
-
         const { error } = await supabase
           .from('products')
           .insert({
@@ -217,7 +216,6 @@ const AddProductPage: React.FC = () => {
 
         if (error) throw error;
       } else {
-        const slug = generateSlug(formData.title);
         const serializedDescription = JSON.stringify({
           htmlDescription: formData.description,
           sizes: null,
@@ -239,6 +237,13 @@ const AddProductPage: React.FC = () => {
           });
           
         if (error) throw error;
+      }
+
+      // Trigger cache revalidation
+      try {
+        await fetch(`/api/revalidate?slug=${slug}`);
+      } catch (revalErr) {
+        console.error('Failed to trigger revalidation:', revalErr);
       }
 
       alert('Product saved successfully!');

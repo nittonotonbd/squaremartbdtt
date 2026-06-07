@@ -319,6 +319,13 @@ const EditProductForm: React.FC = () => {
 
       if (error) throw error;
 
+      // Trigger cache revalidation
+      try {
+        await fetch(`/api/revalidate?slug=${slug}`);
+      } catch (revalErr) {
+        console.error('Failed to trigger revalidation:', revalErr);
+      }
+
       alert('Product updated successfully!');
       router.push('/admin/products');
     } catch (error) {

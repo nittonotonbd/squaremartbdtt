@@ -36,25 +36,6 @@ const isOptionActive = (itemId: any, optId: any, itemPrice: number, optPrice: nu
   return false;
 };
 
-const BANGLADESH_DISTRICTS = [
-  'ঢাকা সিটি হোম ডেলিভারি',
-  'ঢাকা জেলা হোম ডেলিভারি',
-  'চট্টগ্রাম হোম ডেলিভারি',
-  'সিলেট হোম ডেলিভারি',
-  'গাজীপুর হোম ডেলিভারি',
-  'নারায়ণগঞ্জ হোম ডেলিভারি',
-  'কুমিল্লা হোম ডেলিভারি',
-  'বগুড়া হোম ডেলিভারি',
-  'খুলনা হোম ডেলিভারি',
-  'রাজশাহী হোম ডেলিভারি',
-  'বরিশাল হোম ডেলিভারি',
-  'রংপুর হোম ডেলিভারি',
-  'ময়মনসিংহ হোম ডেলিভারি',
-  'যশোর হোম ডেলিভারি',
-  'নোয়াখালী হোম ডেলিভারি',
-  'ফেনী হোম ডেলিভারি'
-];
-
 export default function CartPage() {
   const router = useRouter();
   const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart, changeCartItemProduct } = useCart();
@@ -64,9 +45,6 @@ export default function CartPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderResult, setOrderResult] = useState<{ id: any; name: string; total: number } | null>(null);
-  
-  const [address, setAddress] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,207 +128,178 @@ export default function CartPage() {
       <Header />
       <main className={styles.container}>
         {orderResult ? (
-          <OrderSuccess 
-            orderId={orderResult.id} 
-            customerName={orderResult.name} 
-            totalAmount={orderResult.total} 
+          <OrderSuccess
+            orderId={orderResult.id}
+            customerName={orderResult.name}
+            totalAmount={orderResult.total}
           />
         ) : (
           <div className={styles.layout}>
 
-          
-          {/* Left Column: Form */}
-          <div className={styles.formSection}>
-            <div className={styles.formHeader}>
-              অর্ডারটি কনফার্ম করতে আপনার নাম, ঠিকানা, মোবাইল নাম্বার, লিখে <strong>অর্ডার কনফার্ম করুন</strong> বাটনে ক্লিক করুন
-            </div>
-            
-            <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.formGroup}>
-                <label>আপনার নাম *</label>
-                <input type="text" name="name" placeholder="আপনার নাম" required />
 
+            {/* Left Column: Form */}
+            <div className={styles.formSection}>
+              <div className={styles.formHeader}>
+                অর্ডারটি কনফার্ম করতে আপনার নাম, ঠিকানা, মোবাইল নাম্বার, লিখে <strong>অর্ডার কনফার্ম করুন</strong> বাটনে ক্লিক করুন
               </div>
-              
-              <div className={styles.formGroup}>
-                <label>আপনার মোবাইল নম্বর *</label>
-                <input type="tel" name="phone" placeholder="আপনার মোবাইল নম্বর" required />
 
-              </div>
-              
-              <div className={styles.formGroup} style={{ position: 'relative' }}>
-                <label>আপনার সম্পূর্ণ ঠিকানা</label>
-                <input 
-                  type="text" 
-                  name="address" 
-                  placeholder="আপনার সম্পূর্ণ ঠিকানা (সিলেক্ট করতে এখানে ক্লিক করুন)" 
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  onFocus={() => setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                />
-                
-                {showSuggestions && (
-                  <div className={styles.suggestionsContainer}>
-                    <div className={styles.suggestionsHeader}>আপনার এলাকা সিলেক্ট করুন:</div>
-                    <div className={styles.suggestionsGrid}>
-                      {BANGLADESH_DISTRICTS.map((dist) => (
-                        <button
-                          key={dist}
-                          type="button"
-                          className={styles.suggestionBtn}
-                          onClick={() => {
-                            setAddress(dist + ', ');
-                            setShowSuggestions(false);
-                          }}
-                        >
-                          {dist}
-                        </button>
-                      ))}
+              <form onSubmit={handleSubmit} className={styles.form}>
+                <div className={styles.formGroup}>
+                  <label>আপনার নাম *</label>
+                  <input type="text" name="name" placeholder="আপনার নাম" required />
+
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>আপনার মোবাইল নম্বর *</label>
+                  <input type="tel" name="phone" placeholder="আপনার মোবাইল নম্বর" required />
+
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>আপনার সম্পূর্ণ ঠিকানা</label>
+                  <input type="text" name="address" placeholder="আপনার সম্পূর্ণ ঠিকানা" />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>কালার কোড</label>
+                  <input type="text" name="notes" placeholder="চাদরের উপরের কোড টা দেন" />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>ডেলিভারি চার্জ</label>
+                  <div className={styles.radioGroup}>
+                    <div className={`${styles.radioOption} ${styles.activeRadio}`}>
+                      <span className={styles.customRadio}></span>
+                      <span className={styles.radioText}>ডেলিভারি চার্জ ফ্রি</span>
                     </div>
-                  </div>
-                )}
-              </div>
-              
-              <div className={styles.formGroup}>
-                <label>কালার কোড</label>
-                <input type="text" name="notes" placeholder="চাদরের উপরের কোড টা দেন" />
-              </div>
-              
-              <div className={styles.formGroup}>
-                <label>ডেলিভারি চার্জ</label>
-                <div className={styles.radioGroup}>
-                  <div className={`${styles.radioOption} ${styles.activeRadio}`}>
-                    <span className={styles.customRadio}></span>
-                    <span className={styles.radioText}>ডেলিভারি চার্জ ফ্রি</span>
                   </div>
                 </div>
-              </div>
-              
-              <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
-                {isSubmitting ? 'প্রসেসিং হচ্ছে...' : 'অর্ডার কনফার্ম করুন'}
-              </button>
 
-            </form>
-          </div>
-          
-          {/* Right Column: Order Summary */}
-          <div className={styles.summarySection}>
-            <div className={styles.summaryTable}>
-              <div className={styles.tableHeader}>
-                <div className={styles.colProduct}>Product</div>
-                <div className={styles.colPrice}>Price</div>
-                <div className={styles.colQty}>Quantity</div>
-                <div className={styles.colTotal}>Total</div>
-              </div>
-              
-              <div className={styles.tableBody}>
-                {cartItems.length === 0 ? (
-                  <div style={{padding: '20px', textAlign: 'center', color: '#999'}}>কার্টে কোন প্রোডাক্ট নেই</div>
-                ) : cartItems.map(item => {
-                  const isBedCover = item.title.toLowerCase().includes('waterproof') || 
-                                     item.title.toLowerCase().includes('bed cover') || 
-                                     item.title.toLowerCase().includes('bedsheet') || 
-                                     item.title.includes('চাদর') || 
-                                     item.id === 4 || 
-                                     item.id === 5 ||
-                                     String(item.id).includes('6x7') || 
-                                     String(item.id).includes('7x8');
+                <button type="submit" className={styles.submitBtn} disabled={isSubmitting}>
+                  {isSubmitting ? 'প্রসেসিং হচ্ছে...' : 'অর্ডার কনফার্ম করুন'}
+                </button>
 
-                  const itemSizeOptions = isBedCover ? [
-                    {
-                      id: `${getBaseId(item.id)}-6x7`,
-                      title: `${getBaseTitle(item.title)} (6/7 Feet)`,
-                      price: 1150,
-                      sizeName: 'সাইজ, ৬ফুট x ৭ ফুট',
-                      imageUrl: item.imageUrl
-                    },
-                    {
-                      id: `${getBaseId(item.id)}-7x8`,
-                      title: `${getBaseTitle(item.title)} (7/8 Feet)`,
-                      price: 1350,
-                      sizeName: 'সাইজ, ৭ফুট x ৮ ফুট',
-                      imageUrl: item.imageUrl
-                    }
-                  ] : [];
+              </form>
+            </div>
 
-                  return (
-                    <div key={item.id} className={styles.tableRow}>
-                      <div className={styles.rowMainInfo}>
-                        <div className={styles.colProduct}>
-                          <div className={styles.itemImage} style={{ backgroundImage: `url(${item.imageUrl})` }}></div>
-                          <span>{item.title}</span>
-                        </div>
-                        <div className={styles.colPrice}>{item.price} টাকা</div>
-                        <div className={styles.colQty}>
-                          <div className={styles.qtyControls}>
-                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                            <span>{item.quantity}</span>
-                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+            {/* Right Column: Order Summary */}
+            <div className={styles.summarySection}>
+              <div className={styles.summaryTable}>
+                <div className={styles.tableHeader}>
+                  <div className={styles.colProduct}>Product</div>
+                  <div className={styles.colPrice}>Price</div>
+                  <div className={styles.colQty}>Quantity</div>
+                  <div className={styles.colTotal}>Total</div>
+                </div>
+
+                <div className={styles.tableBody}>
+                  {cartItems.length === 0 ? (
+                    <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>কার্টে কোন প্রোডাক্ট নেই</div>
+                  ) : cartItems.map(item => {
+                    const isBedCover = item.title.toLowerCase().includes('waterproof') ||
+                      item.title.toLowerCase().includes('bed cover') ||
+                      item.title.toLowerCase().includes('bedsheet') ||
+                      item.title.includes('চাদর') ||
+                      item.id === 4 ||
+                      item.id === 5 ||
+                      String(item.id).includes('6x7') ||
+                      String(item.id).includes('7x8');
+
+                    const itemSizeOptions = isBedCover ? [
+                      {
+                        id: `${getBaseId(item.id)}-6x7`,
+                        title: `${getBaseTitle(item.title)} (6/7 Feet)`,
+                        price: 1150,
+                        sizeName: 'সাইজ, ৬ফুট x ৭ ফুট',
+                        imageUrl: item.imageUrl
+                      },
+                      {
+                        id: `${getBaseId(item.id)}-7x8`,
+                        title: `${getBaseTitle(item.title)} (7/8 Feet)`,
+                        price: 1350,
+                        sizeName: 'সাইজ, ৭ফুট x ৮ ফুট',
+                        imageUrl: item.imageUrl
+                      }
+                    ] : [];
+
+                    return (
+                      <div key={item.id} className={styles.tableRow}>
+                        <div className={styles.rowMainInfo}>
+                          <div className={styles.colProduct}>
+                            <div className={styles.itemImage} style={{ backgroundImage: `url(${item.imageUrl})` }}></div>
+                            <span>{item.title}</span>
+                          </div>
+                          <div className={styles.colPrice}>{item.price} টাকা</div>
+                          <div className={styles.colQty}>
+                            <div className={styles.qtyControls}>
+                              <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
+                              <span>{item.quantity}</span>
+                              <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                            </div>
+                          </div>
+                          <div className={styles.colTotal}>
+                            {item.price * item.quantity} টাকা
+                            <button type="button" onClick={() => removeFromCart(item.id)} className={styles.removeBtn}>
+                              <HugeiconsIcon icon={Delete01Icon} size={16} color="#aaa" />
+                            </button>
                           </div>
                         </div>
-                        <div className={styles.colTotal}>
-                          {item.price * item.quantity} টাকা
-                          <button type="button" onClick={() => removeFromCart(item.id)} className={styles.removeBtn}>
-                            <HugeiconsIcon icon={Delete01Icon} size={16} color="#aaa" />
-                          </button>
-                        </div>
+
+                        {isBedCover && (
+                          <div className={styles.cartSizeSelectionBlock}>
+                            <span className={styles.cartSizeSelectLabel}>সাইজ নির্ধারণ করুন:</span>
+                            <div className={styles.cartSizeOptionsGrid}>
+                              {itemSizeOptions.map((opt) => {
+                                const isActive = isOptionActive(item.id, opt.id, item.price, opt.price);
+                                return (
+                                  <div
+                                    key={opt.id}
+                                    className={`${styles.cartSizeOptionCard} ${isActive ? styles.cartActiveSizeCard : ''}`}
+                                    onClick={() => {
+                                      if (!isActive) {
+                                        changeCartItemProduct(item.id, {
+                                          id: opt.id,
+                                          title: opt.title,
+                                          price: opt.price,
+                                          imageUrl: opt.imageUrl
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <span className={styles.cartSizeRadioCircle}>
+                                      {isActive && <span className={styles.cartSizeRadioInnerCircle}></span>}
+                                    </span>
+                                    <span className={styles.cartSizeName}>{opt.sizeName}</span>
+                                    <span className={styles.cartSizePrice}>{opt.price} টাকা</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                      
-                      {isBedCover && (
-                        <div className={styles.cartSizeSelectionBlock}>
-                          <span className={styles.cartSizeSelectLabel}>সাইজ নির্ধারণ করুন:</span>
-                          <div className={styles.cartSizeOptionsGrid}>
-                            {itemSizeOptions.map((opt) => {
-                              const isActive = isOptionActive(item.id, opt.id, item.price, opt.price);
-                              return (
-                                <div
-                                  key={opt.id}
-                                  className={`${styles.cartSizeOptionCard} ${isActive ? styles.cartActiveSizeCard : ''}`}
-                                  onClick={() => {
-                                    if (!isActive) {
-                                      changeCartItemProduct(item.id, {
-                                        id: opt.id,
-                                        title: opt.title,
-                                        price: opt.price,
-                                        imageUrl: opt.imageUrl
-                                      });
-                                    }
-                                  }}
-                                >
-                                  <span className={styles.cartSizeRadioCircle}>
-                                    {isActive && <span className={styles.cartSizeRadioInnerCircle}></span>}
-                                  </span>
-                                  <span className={styles.cartSizeName}>{opt.sizeName}</span>
-                                  <span className={styles.cartSizePrice}>{opt.price} টাকা</span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-            
-            <div className={styles.totals}>
-              <div className={styles.totalsRow}>
-                <span>Sub-Total</span>
-                <span>{subtotal} টাকা</span>
-              </div>
-              <div className={styles.totalsRow}>
-                <span>Delivery Charges</span>
-                <span>{shippingCost} টাকা</span>
-              </div>
-              <div className={`${styles.totalsRow} ${styles.finalTotal}`}>
-                <span>Total Amount</span>
-                <span>{total} টাকা</span>
+
+              <div className={styles.totals}>
+                <div className={styles.totalsRow}>
+                  <span>Sub-Total</span>
+                  <span>{subtotal} টাকা</span>
+                </div>
+                <div className={styles.totalsRow}>
+                  <span>Delivery Charges</span>
+                  <span>{shippingCost} টাকা</span>
+                </div>
+                <div className={`${styles.totalsRow} ${styles.finalTotal}`}>
+                  <span>Total Amount</span>
+                  <span>{total} টাকা</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
         )}
       </main>
 

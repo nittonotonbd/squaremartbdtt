@@ -82,6 +82,12 @@ const AdminProductsPage: React.FC = () => {
       if (error) {
         alert('Error deleting product');
       } else {
+        // Trigger cache revalidation
+        try {
+          await fetch('/api/revalidate');
+        } catch (revalErr) {
+          console.error('Failed to trigger revalidation:', revalErr);
+        }
         fetchProducts();
       }
     }
