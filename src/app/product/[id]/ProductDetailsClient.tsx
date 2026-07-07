@@ -8,6 +8,7 @@ import styles from './product.module.css';
 import { Product, cleanTitle } from '../../../data/products';
 import { HugeiconsIcon } from "@hugeicons/react";
 import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
+import { fbqEvent } from '../../../lib/metaPixel';
 
 export default function ProductDetailsClient({ product }: { product: Product }) {
   // Parse dynamic sizes and product code from description JSON
@@ -208,6 +209,19 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
       fetchSizes();
     }
   }, [product, isBedCover]);
+
+  // Track ViewContent event when selected product/variation changes
+  React.useEffect(() => {
+    if (selectedProduct) {
+      fbqEvent('ViewContent', {
+        content_name: selectedProduct.title,
+        content_ids: [String(selectedProduct.id)],
+        content_type: 'product',
+        value: selectedProduct.price,
+        currency: 'BDT'
+      });
+    }
+  }, [selectedProduct]);
 
   const discount = selectedProduct.originalPrice 
     ? Math.round(((selectedProduct.originalPrice - selectedProduct.price) / selectedProduct.originalPrice) * 100) 

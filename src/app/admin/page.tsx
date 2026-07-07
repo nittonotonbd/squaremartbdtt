@@ -31,6 +31,18 @@ interface RecentOrder {
 }
 
 
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case 'New order': return styles.statusPending;
+    case 'Order conform': return styles.statusProcessing;
+    case 'No response': return styles.statusShipped;
+    case 'Delivered': return styles.statusSuccess;
+    case 'Cancelled': return styles.statusCancelled;
+    default: return '';
+  }
+};
+
+
 const AdminDashboardContent: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -242,7 +254,7 @@ const AdminDashboardContent: React.FC = () => {
                       <td>{order.product}</td>
                       <td>{order.amount}</td>
                       <td>
-                        <span className={`${styles.status} ${order.status === 'Delivered' ? styles.statusSuccess : styles.statusPending}`}>
+                        <span className={`${styles.status} ${getStatusClass(order.status)}`}>
                           {order.status}
                         </span>
                       </td>
@@ -282,7 +294,7 @@ const AdminDashboardContent: React.FC = () => {
                 >
                   <div className={styles.orderCardHeader}>
                     <span className={styles.orderCardId}>{order.id}</span>
-                    <span className={`${styles.status} ${order.status === 'Delivered' ? styles.statusSuccess : styles.statusPending}`}>
+                    <span className={`${styles.status} ${getStatusClass(order.status)}`}>
                       {order.status}
                     </span>
                   </div>

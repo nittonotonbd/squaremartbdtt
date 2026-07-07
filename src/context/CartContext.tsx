@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { fbqEvent } from '../lib/metaPixel';
 
 export interface CartItem {
   id: number | string;
@@ -66,6 +67,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prevItems, { ...product, quantity }];
     });
+
+    // Facebook Pixel AddToCart Event
+    fbqEvent('AddToCart', {
+      content_name: product.title,
+      content_ids: [String(product.id)],
+      content_type: 'product',
+      value: product.price * quantity,
+      currency: 'BDT'
+    });
+
     showToast(`${quantity}টি পণ্য সফলভাবে কার্টে যোগ করা হয়েছে!`, "success");
   };
 

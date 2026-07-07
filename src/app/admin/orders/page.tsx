@@ -45,6 +45,7 @@ interface Order {
   payment_status: string;
   date: string;
   total: number;
+  subtotal: number;
   shipping_cost: number;
   items?: OrderItem[];
 }
@@ -62,12 +63,21 @@ const mockOrders = [
 
 const getStatusClass = (status: string) => {
   switch (status) {
-    case 'Delivered': return styles.statusSuccess;
-    case 'Pending': return styles.statusPending;
-    case 'Processing': return styles.statusProcessing;
-    case 'Cancelled': return styles.statusCancelled;
-    case 'Shipped': return styles.statusShipped;
-    default: return '';
+    case 'New order':
+    case 'Pending': 
+      return styles.statusPending;
+    case 'Order conform':
+    case 'Processing': 
+      return styles.statusProcessing;
+    case 'No response':
+    case 'Shipped': 
+      return styles.statusShipped;
+    case 'Delivered': 
+      return styles.statusSuccess;
+    case 'Cancelled': 
+      return styles.statusCancelled;
+    default: 
+      return '';
   }
 };
 
@@ -80,6 +90,18 @@ const AdminOrdersPageContent: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null);
   const [updatingStatus, setUpdatingStatus] = React.useState<string>('');
   const [activeMenu, setActiveMenu] = React.useState<string | null>(null);
+
+  // Edit Mode States
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [editName, setEditName] = React.useState('');
+  const [editPhone, setEditPhone] = React.useState('');
+  const [editAddress, setEditAddress] = React.useState('');
+  const [editNotes, setEditNotes] = React.useState('');
+  const [editPaymentStatus, setEditPaymentStatus] = React.useState('');
+  const [editSubtotal, setEditSubtotal] = React.useState<number>(0);
+  const [editShippingCost, setEditShippingCost] = React.useState<number>(0);
+  const [editTotal, setEditTotal] = React.useState<number>(0);
+  const [editItems, setEditItems] = React.useState<OrderItem[]>([]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -102,6 +124,7 @@ const AdminOrdersPageContent: React.FC = () => {
         payment_status: o.payment_status,
         date: new Date(o.created_at).toISOString().split('T')[0],
         total: o.total,
+        subtotal: o.subtotal || (o.total - o.shipping_cost),
         shipping_cost: o.shipping_cost
       }));
 
@@ -149,7 +172,47 @@ const AdminOrdersPageContent: React.FC = () => {
   };
 
 
-  const pendingOrdersCount = orders.filter(o => o.status === 'Pending').length;
+  const updateItemPrice = (index: number, val: number) => {
+    setEditItems(prev => {
+      const copy = [...prev];
+      copy[index].price = val;
+      const newSubtotal = copy.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      setEditSubtotal(newSubtotal);
+      setEditTotal(newSubtotal + editShippingCost);
+      return copy;
+    });
+  };
+
+  const updateItemQuantity = (index: number, val: number) => {
+    setEditItems(prev => {
+      const copy = [...prev];
+      copy[index].quantity = val;
+      const newSubtotal = copy.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+      setEditSubtotal(newSubtotal);
+      setEditTotal(newSubtotal + editShippingCost);
+      return copy;
+    });
+  };
+
+  const updateItemTitle = (index: number, val: string) => {
+    setEditItems(prev => {
+      const copy = [...prev];
+      copy[index].product_title = val;
+      return copy;
+    });
+  };
+
+  const handleShippingCostChange = (val: number) => {
+    setEditShippingCost(val);
+    setEditTotal(editSubtotal + val);
+  };
+
+  const handleSubtotalChange = (val: number) => {
+    setEditSubtotal(val);
+    setEditTotal(val + editShippingCost);
+  };
+
+  const pendingOrdersCount = orders.filter(o => o.status === 'New order' || o.status === 'Pending').length;
   const completedOrdersCount = orders.filter(o => o.status === 'Delivered').length;
   const totalRevenue = orders.reduce((acc, o) => acc + (o.status !== 'Cancelled' ? o.total : 0), 0);
 
@@ -167,7 +230,11 @@ const AdminOrdersPageContent: React.FC = () => {
   }, []);
 
   const filteredOrders = orders.filter(order => {
-    const matchesStatus = filterStatus === 'All' || order.status === filterStatus;
+    const matchesStatus = filterStatus === 'All' || 
+                          order.status === filterStatus ||
+                          (filterStatus === 'New order' && order.status === 'Pending') ||
+                          (filterStatus === 'Order conform' && order.status === 'Processing') ||
+                          (filterStatus === 'No response' && order.status === 'Shipped');
     const matchesSearch = order.id.toLowerCase().includes(searchQuery.toLowerCase()) || 
                          order.customer_name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesStatus && matchesSearch;
@@ -177,6 +244,7 @@ const AdminOrdersPageContent: React.FC = () => {
   const closeOrderDetail = () => {
     setSelectedOrder(null);
     setUpdatingStatus('');
+    setIsEditing(false);
   };
 
   const handleStatusUpdate = async () => {
@@ -200,6 +268,72 @@ const AdminOrdersPageContent: React.FC = () => {
     } catch (error) {
       console.error('Error updating status:', error);
       alert('Failed to update status.');
+    }
+  };
+
+  const handleSaveEdits = async () => {
+    if (!selectedOrder) return;
+    try {
+      const orderId = selectedOrder.id.replace('#ORD-', '');
+      
+      // Update orders table
+      const { error: orderError } = await supabase
+        .from('orders')
+        .update({
+          customer_name: editName,
+          customer_phone: editPhone,
+          address: editAddress,
+          notes: editNotes,
+          payment_status: editPaymentStatus,
+          subtotal: editSubtotal,
+          shipping_cost: editShippingCost,
+          total: editTotal
+        })
+        .eq('id', orderId);
+
+      if (orderError) throw orderError;
+
+      // Update order items in DB
+      if (editItems.length > 0) {
+        for (const item of editItems) {
+          const { error: itemError } = await supabase
+            .from('order_items')
+            .update({
+              product_title: item.product_title,
+              price: item.price,
+              quantity: item.quantity
+            })
+            .eq('id', item.id);
+          
+          if (itemError) throw itemError;
+        }
+      }
+
+      // Update local state for all orders
+      const updatedOrder = {
+        ...selectedOrder,
+        customer_name: editName,
+        customer_phone: editPhone,
+        address: editAddress,
+        notes: editNotes,
+        payment_status: editPaymentStatus,
+        subtotal: editSubtotal,
+        shipping_cost: editShippingCost,
+        total: editTotal,
+        amount: `৳${editTotal}`,
+        items: editItems
+      };
+
+      setOrders(prev => prev.map(order => 
+        order.id === selectedOrder.id ? updatedOrder : order
+      ));
+      
+      setSelectedOrder(updatedOrder);
+      setIsEditing(false);
+      alert('Order details updated successfully.');
+    } catch (error) {
+      console.error('Error saving order edits:', error);
+      alert('Failed to save changes.');
     }
   };
 
@@ -353,126 +487,294 @@ const AdminOrdersPageContent: React.FC = () => {
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2 className={styles.sectionTitle}>Order Details: {selectedOrder.id}</h2>
-              <button className={styles.iconBtn} onClick={closeOrderDetail}>
-                <HugeiconsIcon icon={Cancel01Icon} size={24} />
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
-                <div className={styles.detailsGrid} style={{ flex: 1, marginBottom: 0 }}>
-                  <div className={styles.detailItem}>
-                    <h4>Customer Info</h4>
-                    <p>{selectedOrder.customer_name}</p>
-                    <p style={{ fontWeight: '400', fontSize: '14px', color: 'var(--text-gray)' }}>{selectedOrder.customer_phone}</p>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <h4>Shipping Address</h4>
-                    <p style={{ fontWeight: '400', fontSize: '14px' }}>
-                      {selectedOrder.address || 'No address provided'}
-                    </p>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <h4>কালার কোড (Color Code)</h4>
-                    <p style={{ fontWeight: '600', color: '#ff5a00' }}>
-                      {selectedOrder.notes || 'No color code specified'}
-                    </p>
-                  </div>
-                  <div className={styles.detailItem}>
-                    <h4>Payment Status</h4>
-                    <p>{selectedOrder.payment_status}</p>
-                  </div>
-
-                  <div className={styles.detailItem}>
-                    <h4>Order Status</h4>
-                    <span className={`${styles.status} ${getStatusClass(selectedOrder.status)}`}>
-                      {selectedOrder.status}
-                    </span>
-                  </div>
-                </div>
-
-                <div className={styles.qrCodeContainer}>
-                  <div className={styles.qrPlaceholder}>
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(selectedOrder.id)}`} 
-                      alt="QR Code"
-                      style={{ width: '100%', height: '100%', padding: '4px' }}
-                    />
-                  </div>
-                  <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-light)' }}>SCAN ORDER</span>
-                </div>
-              </div>
-
-              <div className={styles.orderItemsTable}>
-                <h4 style={{ fontSize: '13px', color: 'var(--text-light)', marginBottom: '16px' }}>ORDER ITEMS</h4>
-                {selectedOrder.items?.map((item: any) => (
-                  <div key={item.id} className={styles.itemRow}>
-                    <div className={styles.itemInfo}>
-                      <div 
-                        className={styles.productThumb} 
-                        style={{ width: '50px', height: '50px', backgroundImage: `url(${item.image_url})`, backgroundSize: 'cover' }}
-                      ></div>
-                      <div className={styles.itemDetails}>
-                        <span className={styles.itemName}>{item.product_title}</span>
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: '600' }}>৳{item.price}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-gray)' }}>Qty: {item.quantity}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-
-              <div className={styles.summarySection}>
-                <div className={styles.summaryRow}>
-                  <span>Subtotal</span>
-                  <span>{selectedOrder.amount}</span>
-                </div>
-                <div className={styles.summaryRow}>
-                  <span>Shipping Fee</span>
-                  <span>৳{selectedOrder.shipping_cost}</span>
-                </div>
-
-                <div className={styles.summaryRow}>
-                  <span>Discount</span>
-                  <span style={{ color: '#ef4444' }}>-৳0</span>
-                </div>
-                <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
-                  <span>Grand Total</span>
-                  <span>{selectedOrder.amount}</span>
-                </div>
-              </div>
-
-              <div className={styles.minimalSection}>
-                <h4 style={{ fontSize: '13px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px' }}>Update Order Status</h4>
-                <div className={styles.statusToggleGroup}>
-                  {['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'].map((status) => (
-                    <button
-                      key={status}
-                      className={`${styles.statusToggleButton} ${(updatingStatus || selectedOrder.status) === status ? styles.statusToggleButtonActive : ''}`}
-                      onClick={() => setUpdatingStatus(status)}
-                    >
-                      {status}
-                    </button>
-                  ))}
-                </div>
-                {updatingStatus && updatingStatus !== selectedOrder.status && (
-                  <button 
-                    className={styles.primaryBtn} 
-                    style={{ marginTop: '20px', width: '100%', justifyContent: 'center' }}
-                    onClick={handleStatusUpdate}
-                  >
-                    Confirm Status Change
-                  </button>
-                )}
-              </div>
-
-              <div className={styles.btnGroup} style={{ marginTop: '32px', borderTop: '1px solid var(--bg-light)', paddingTop: '20px' }}>
-                <button className={styles.secondaryBtn} onClick={closeOrderDetail} style={{ width: '100%', justifyContent: 'center' }}>
-                  Close
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <button
+                  className={styles.secondaryBtn}
+                  style={{ padding: '6px 12px', fontSize: '13px' }}
+                  onClick={() => {
+                    if (isEditing) {
+                      setIsEditing(false);
+                    } else {
+                      setIsEditing(true);
+                      setEditName(selectedOrder.customer_name);
+                      setEditPhone(selectedOrder.customer_phone);
+                      setEditAddress(selectedOrder.address || '');
+                      setEditNotes(selectedOrder.notes || '');
+                      setEditPaymentStatus(selectedOrder.payment_status);
+                      setEditSubtotal(selectedOrder.subtotal || (selectedOrder.total - selectedOrder.shipping_cost));
+                      setEditShippingCost(selectedOrder.shipping_cost);
+                      setEditTotal(selectedOrder.total);
+                      setEditItems(selectedOrder.items ? selectedOrder.items.map(item => ({ ...item })) : []);
+                    }
+                  }}
+                >
+                  {isEditing ? 'Cancel Edit' : 'Edit Order'}
+                </button>
+                <button className={styles.iconBtn} onClick={closeOrderDetail}>
+                  <HugeiconsIcon icon={Cancel01Icon} size={24} />
                 </button>
               </div>
+            </div>
+            <div className={styles.modalBody}>
+              {isEditing ? (
+                <div>
+                  <div className={styles.detailsGrid} style={{ marginBottom: '24px' }}>
+                    <div className={styles.formGroup} style={{ marginBottom: '12px' }}>
+                      <label className={styles.formLabel}>Customer Name</label>
+                      <input 
+                        type="text" 
+                        className={styles.input} 
+                        value={editName} 
+                        onChange={(e) => setEditName(e.target.value)} 
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ marginBottom: '12px' }}>
+                      <label className={styles.formLabel}>Customer Phone</label>
+                      <input 
+                        type="text" 
+                        className={styles.input} 
+                        value={editPhone} 
+                        onChange={(e) => setEditPhone(e.target.value)} 
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ marginBottom: '12px', gridColumn: 'span 2' }}>
+                      <label className={styles.formLabel}>Shipping Address</label>
+                      <textarea 
+                        className={styles.textarea} 
+                        style={{ minHeight: '60px' }}
+                        value={editAddress} 
+                        onChange={(e) => setEditAddress(e.target.value)} 
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ marginBottom: '12px' }}>
+                      <label className={styles.formLabel}>কালার কোড (Color Code)</label>
+                      <input 
+                        type="text" 
+                        className={styles.input} 
+                        value={editNotes} 
+                        onChange={(e) => setEditNotes(e.target.value)} 
+                      />
+                    </div>
+                    <div className={styles.formGroup} style={{ marginBottom: '12px' }}>
+                      <label className={styles.formLabel}>Payment Status</label>
+                      <select 
+                        className={styles.select} 
+                        value={editPaymentStatus} 
+                        onChange={(e) => setEditPaymentStatus(e.target.value)}
+                      >
+                        <option value="Paid">Paid</option>
+                        <option value="Unpaid">Unpaid</option>
+                        <option value="Refunded">Refunded</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className={styles.orderItemsTable} style={{ marginTop: '16px', paddingTop: '16px' }}>
+                    <h4 style={{ fontSize: '13px', color: 'var(--text-light)', marginBottom: '16px' }}>EDIT ORDER ITEMS</h4>
+                    {editItems.map((item, index) => (
+                      <div key={item.id} className={styles.itemRow} style={{ alignItems: 'center' }}>
+                        <div className={styles.itemInfo} style={{ flex: 2 }}>
+                          <div 
+                            className={styles.productThumb} 
+                            style={{ width: '40px', height: '40px', backgroundImage: `url(${item.image_url})`, backgroundSize: 'cover', flexShrink: 0 }}
+                          ></div>
+                          <div className={styles.itemDetails} style={{ width: '100%' }}>
+                            <input 
+                              type="text" 
+                              className={styles.input} 
+                              style={{ padding: '6px 10px', fontSize: '13px' }}
+                              value={item.product_title} 
+                              onChange={(e) => updateItemTitle(index, e.target.value)} 
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
+                          <div style={{ width: '80px' }}>
+                            <label style={{ fontSize: '10px', color: 'var(--text-gray)', display: 'block' }}>Price</label>
+                            <input 
+                              type="number" 
+                              className={styles.input} 
+                              style={{ padding: '6px 10px', fontSize: '13px', textAlign: 'right' }}
+                              value={item.price} 
+                              onChange={(e) => updateItemPrice(index, Number(e.target.value))} 
+                            />
+                          </div>
+                          <div style={{ width: '60px' }}>
+                            <label style={{ fontSize: '10px', color: 'var(--text-gray)', display: 'block' }}>Qty</label>
+                            <input 
+                              type="number" 
+                              className={styles.input} 
+                              style={{ padding: '6px 10px', fontSize: '13px', textAlign: 'center' }}
+                              value={item.quantity} 
+                              onChange={(e) => updateItemQuantity(index, Number(e.target.value))} 
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className={styles.summarySection} style={{ marginTop: '24px' }}>
+                    <div className={styles.summaryRow} style={{ alignItems: 'center', marginBottom: '8px' }}>
+                      <span>Subtotal</span>
+                      <input 
+                        type="number" 
+                        className={styles.input} 
+                        style={{ width: '120px', padding: '6px 10px', fontSize: '13px', textAlign: 'right' }}
+                        value={editSubtotal} 
+                        onChange={(e) => handleSubtotalChange(Number(e.target.value))} 
+                      />
+                    </div>
+                    <div className={styles.summaryRow} style={{ alignItems: 'center', marginBottom: '8px' }}>
+                      <span>Shipping Fee</span>
+                      <input 
+                        type="number" 
+                        className={styles.input} 
+                        style={{ width: '120px', padding: '6px 10px', fontSize: '13px', textAlign: 'right' }}
+                        value={editShippingCost} 
+                        onChange={(e) => handleShippingCostChange(Number(e.target.value))} 
+                      />
+                    </div>
+                    <div className={`${styles.summaryRow} ${styles.summaryTotal}`} style={{ alignItems: 'center' }}>
+                      <span>Grand Total</span>
+                      <input 
+                        type="number" 
+                        className={styles.input} 
+                        style={{ width: '120px', padding: '6px 10px', fontSize: '15px', fontWeight: 'bold', textAlign: 'right', color: 'var(--primary-color)' }}
+                        value={editTotal} 
+                        onChange={(e) => setEditTotal(Number(e.target.value))} 
+                      />
+                    </div>
+                  </div>
+
+                  <div className={styles.btnGroup} style={{ marginTop: '24px' }}>
+                    <button 
+                      className={styles.primaryBtn} 
+                      style={{ width: '100%', justifyContent: 'center' }}
+                      onClick={handleSaveEdits}
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
+                    <div className={styles.detailsGrid} style={{ flex: 1, marginBottom: 0 }}>
+                      <div className={styles.detailItem}>
+                        <h4>Customer Info</h4>
+                        <p>{selectedOrder.customer_name}</p>
+                        <p style={{ fontWeight: '400', fontSize: '14px', color: 'var(--text-gray)' }}>{selectedOrder.customer_phone}</p>
+                      </div>
+                      <div className={styles.detailItem}>
+                        <h4>Shipping Address</h4>
+                        <p style={{ fontWeight: '400', fontSize: '14px' }}>
+                          {selectedOrder.address || 'No address provided'}
+                        </p>
+                      </div>
+                      <div className={styles.detailItem}>
+                        <h4>কালার কোড (Color Code)</h4>
+                        <p style={{ fontWeight: '600', color: '#ff5a00' }}>
+                          {selectedOrder.notes || 'No color code specified'}
+                        </p>
+                      </div>
+                      <div className={styles.detailItem}>
+                        <h4>Payment Status</h4>
+                        <p>{selectedOrder.payment_status}</p>
+                      </div>
+
+                      <div className={styles.detailItem}>
+                        <h4>Order Status</h4>
+                        <span className={`${styles.status} ${getStatusClass(selectedOrder.status)}`}>
+                          {selectedOrder.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.qrCodeContainer}>
+                      <div className={styles.qrPlaceholder}>
+                        <img 
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(selectedOrder.id)}`} 
+                          alt="QR Code"
+                          style={{ width: '100%', height: '100%', padding: '4px' }}
+                        />
+                      </div>
+                      <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-light)' }}>SCAN ORDER</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.orderItemsTable}>
+                    <h4 style={{ fontSize: '13px', color: 'var(--text-light)', marginBottom: '16px' }}>ORDER ITEMS</h4>
+                    {selectedOrder.items?.map((item: any) => (
+                      <div key={item.id} className={styles.itemRow}>
+                        <div className={styles.itemInfo}>
+                          <div 
+                            className={styles.productThumb} 
+                            style={{ width: '50px', height: '50px', backgroundImage: `url(${item.image_url})`, backgroundSize: 'cover' }}
+                          ></div>
+                          <div className={styles.itemDetails}>
+                            <span className={styles.itemName}>{item.product_title}</span>
+                          </div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontWeight: '600' }}>৳{item.price}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-gray)' }}>Qty: {item.quantity}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className={styles.summarySection}>
+                    <div className={styles.summaryRow}>
+                      <span>Subtotal</span>
+                      <span>৳{selectedOrder.subtotal || (selectedOrder.total - selectedOrder.shipping_cost)}</span>
+                    </div>
+                    <div className={styles.summaryRow}>
+                      <span>Shipping Fee</span>
+                      <span>৳{selectedOrder.shipping_cost}</span>
+                    </div>
+
+                    <div className={styles.summaryRow}>
+                      <span>Discount</span>
+                      <span style={{ color: '#ef4444' }}>-৳0</span>
+                    </div>
+                    <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
+                      <span>Grand Total</span>
+                      <span>{selectedOrder.amount}</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.minimalSection}>
+                    <h4 style={{ fontSize: '13px', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '1px' }}>Update Order Status</h4>
+                    <div className={styles.statusToggleGroup}>
+                      {['New order', 'Order conform', 'No response', 'Delivered', 'Cancelled'].map((status) => (
+                        <button
+                          key={status}
+                          className={`${styles.statusToggleButton} ${(updatingStatus || selectedOrder.status) === status ? styles.statusToggleButtonActive : ''}`}
+                          onClick={() => setUpdatingStatus(status)}
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                    {updatingStatus && updatingStatus !== selectedOrder.status && (
+                      <button 
+                        className={styles.primaryBtn} 
+                        style={{ marginTop: '20px', width: '100%', justifyContent: 'center' }}
+                        onClick={handleStatusUpdate}
+                      >
+                        Confirm Status Change
+                      </button>
+                    )}
+                  </div>
+
+                  <div className={styles.btnGroup} style={{ marginTop: '32px', borderTop: '1px solid var(--bg-light)', paddingTop: '20px' }}>
+                    <button className={styles.secondaryBtn} onClick={closeOrderDetail} style={{ width: '100%', justifyContent: 'center' }}>
+                      Close
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -510,13 +812,13 @@ const AdminOrdersPageContent: React.FC = () => {
         ) : (
           <>
             <StatCard 
-              label="Pending Orders" 
+              label="New Orders" 
               value={pendingOrdersCount.toString()} 
               icon={Clock01Icon} 
               trend="" 
               trendUp={true} 
               color="#f59e0b" 
-              onClick={() => setFilterStatus('Pending')}
+              onClick={() => setFilterStatus('New order')}
             />
             <StatCard 
               label="Completed Orders" 
@@ -558,9 +860,9 @@ const AdminOrdersPageContent: React.FC = () => {
             onChange={(e) => setFilterStatus(e.target.value)}
           >
             <option value="All">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Shipped">Shipped</option>
+            <option value="New order">New order</option>
+            <option value="Order conform">Order conform</option>
+            <option value="No response">No response</option>
             <option value="Delivered">Delivered</option>
             <option value="Cancelled">Cancelled</option>
           </select>

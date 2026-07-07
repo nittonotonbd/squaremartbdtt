@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -9,6 +9,7 @@ import styles from './checkout.module.css';
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Delete01Icon } from "@hugeicons/core-free-icons";
 import { supabase } from '../../lib/supabase';
+import { fbqEvent } from '../../lib/metaPixel';
 
 
 export default function CheckoutPage() {
@@ -19,6 +20,21 @@ export default function CheckoutPage() {
   const total = subtotal + shippingCost;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasInitiatedCheckout, setHasInitiatedCheckout] = useState(false);
+
+  // Track InitiateCheckout on page mount once cart items are loaded
+  useEffect(() => {
+    if (cartItems.length > 0 && !hasInitiatedCheckout) {
+      fbqEvent('InitiateCheckout', {
+        value: total,
+        currency: 'BDT',
+        content_type: 'product',
+        content_ids: cartItems.map(item => String(item.id)),
+        num_items: cartItems.reduce((acc, item) => acc + item.quantity, 0)
+      });
+      setHasInitiatedCheckout(true);
+    }
+  }, [cartItems, total, hasInitiatedCheckout]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +52,7 @@ export default function CheckoutPage() {
       shipping_cost: shippingCost,
       subtotal: subtotal,
       total: total,
-      status: 'Pending',
+      status: 'New order',
       payment_status: 'Unpaid'
     };
 
@@ -78,6 +94,19 @@ export default function CheckoutPage() {
         console.error('Notification Error:', notifyError);
       }
 
+      // Facebook Pixel Purchase Event
+      fbqEvent('Purchase', {
+        value: total,
+        currency: 'BDT',
+        content_type: 'product',
+        content_ids: cartItems.map(item => String(item.id)),
+        contents: cartItems.map(item => ({
+          id: String(item.id),
+          quantity: item.quantity,
+          price: item.price
+        })),
+        order_id: String(order.id)
+      });
 
       alert("অর্ডার সফলভাবে সম্পন্ন হয়েছে!");
 

@@ -63,7 +63,7 @@ export default function CartPage() {
       shipping_cost: shippingCost,
       subtotal: subtotal,
       total: total,
-      status: 'Pending',
+      status: 'New order',
       payment_status: 'Unpaid'
     };
 

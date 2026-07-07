@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import Providers from "../components/Providers";
+import MetaPixel from "../components/MetaPixel";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -57,6 +58,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={outfit.variable}>
         <Providers>{children}</Providers>
+        <MetaPixel />
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ import Footer from '../../components/Footer';
 import ProductGrid from '../../components/ProductGrid';
 import { getProducts, Product } from '../../data/products';
 import styles from './Search.module.css';
+import { fbqEvent } from '../../lib/metaPixel';
 
 function SearchResults() {
   const searchParams = useSearchParams();
@@ -28,6 +29,13 @@ function SearchResults() {
     };
     fetchProducts();
   }, []);
+
+  // Track Search event when query changes
+  useEffect(() => {
+    if (query) {
+      fbqEvent('Search', { search_string: query });
+    }
+  }, [query]);
 
   const filteredProducts = useMemo(() => {
     if (!query) return [];
