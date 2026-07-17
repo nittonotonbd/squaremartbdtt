@@ -31,8 +31,8 @@ export default async function Home() {
           Nittonotonbd - Best Online Shopping in Bangladesh for Electronics &amp; Lifestyle
         </h1>
         <HeroBanner />
-        <DiaperSection products={diaperProducts} />
         <ProductGrid title="All Products" products={products} showSeeMore={true} />
+        <DiaperSection products={diaperProducts} />
       </main>
       <Footer />
     </>
