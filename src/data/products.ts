@@ -59,7 +59,47 @@ export const mockProducts: Product[] = [
     category: 'মশারী',
     stockStatus: 'Out Of Stock',
     callToOrder: '01942-838348'
-  }
+  },
+  {
+    id: 101,
+    slug: 'diaper-5pcs',
+    title: '৫ পিস রি-ইউজেবল ডায়াপার',
+    price: 950,
+    imageUrl: '/images/products/diaper1.png',
+    category: 'নরমাল চাদর',
+    stockStatus: 'In Stock',
+    callToOrder: '01942-838348'
+  },
+  {
+    id: 102,
+    slug: 'diaper-4pcs',
+    title: '৪ পিস রি-ইউজেবল ডায়াপার',
+    price: 850,
+    imageUrl: '/images/products/diaper2.png',
+    category: 'নরমাল চাদর',
+    stockStatus: 'In Stock',
+    callToOrder: '01942-838348'
+  },
+  {
+    id: 103,
+    slug: 'diaper-3pcs',
+    title: '৩ পিস রি-ইউজেবল ডায়াপার',
+    price: 550,
+    imageUrl: '/images/products/diaper3.png',
+    category: 'নরমাল চাদর',
+    stockStatus: 'In Stock',
+    callToOrder: '01942-838348'
+  },
+  {
+    id: 104,
+    slug: 'diaper-2pcs',
+    title: '২ পিস রি-ইউজেবল ডায়াপার',
+    price: 450,
+    imageUrl: '/images/products/diaper4.png',
+    category: 'নরমাল চাদর',
+    stockStatus: 'In Stock',
+    callToOrder: '01942-838348'
+  },
 ];
 
 const generateSlug = (text: string) => {
@@ -198,7 +238,11 @@ export async function getProductsByCategory(category: string): Promise<Product[]
 
   if (error) {
     console.error('Error fetching products by category:', error);
-    return [];
+    return mockProducts.filter(p => p.category === category);
+  }
+
+  if (!data || data.length === 0) {
+    return mockProducts.filter(p => p.category === category);
   }
 
   return data.map(p => ({

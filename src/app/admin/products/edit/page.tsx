@@ -770,7 +770,7 @@ const EditProductForm: React.FC = () => {
               >
                 <option value="">Select Category</option>
                 <option value="ওয়াটারপ্রুফ চাদর">ওয়াটারপ্রুফ চাদর</option>
-                <option value="নরমাল চাদর">নরমাল চাদর</option>
+                <option value="ডায়াপার">ডায়াপার</option>
                 <option value="মশারী">মশারী</option>
               </select>
             </div>

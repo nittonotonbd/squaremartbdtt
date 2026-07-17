@@ -3,7 +3,7 @@ import styles from './CategoriesBar.module.css';
 
 const categories = [
   { name: "ওয়াটারপ্রুফ চাদর", slug: "waterproof-chador" },
-  { name: "নরমাল চাদর", slug: "normal-chador" },
+  { name: "ডায়াপার", slug: "normal-chador" },
   { name: "মশারী", slug: "moshari" }
 ];
 

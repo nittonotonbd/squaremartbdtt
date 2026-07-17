@@ -12,8 +12,13 @@ interface Props {
 
 const categoryMap: Record<string, string> = {
   "waterproof-chador": "ওয়াটারপ্রুফ চাদর",
-  "normal-chador": "নরমাল চাদর",
+  "normal-chador": "ডায়াপার",
   "moshari": "মশারী"
+};
+
+// এই slug গুলোতে extra categories-ও মিলিয়ে দেখাবে
+const extraCategoryMap: Record<string, string[]> = {
+  "normal-chador": ["নরমাল চাদর"],
 };
 
 export default async function CategoryPage({ params }: Props) {
@@ -26,15 +31,20 @@ export default async function CategoryPage({ params }: Props) {
 
   const products = await getProductsByCategory(categoryName);
 
+  // Extra categories (যেমন ডায়াপার → নরমাল চাদরে দেখাবে)
+  const extras = extraCategoryMap[resolvedParams.slug] || [];
+  const extraProducts = await Promise.all(extras.map(cat => getProductsByCategory(cat)));
+  const allProducts = [...products, ...extraProducts.flat()];
+
   return (
     <>
       <Header />
       <CategoriesBar />
       <main style={{ padding: '20px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <ProductGrid title={`${categoryName}`} products={products} />
+          <ProductGrid title={`${categoryName}`} products={allProducts} />
 
-          {products.length === 0 && (
+          {allProducts.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-light)' }}>
               <p>No products found in this category.</p>
             </div>
