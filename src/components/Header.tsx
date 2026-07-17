@@ -18,7 +18,7 @@ export default function Header() {
 
   const categories = [
     { name: "ওয়াটারপ্রুফ চাদর", slug: "waterproof-chador" },
-    { name: "নরমাল চাদর", slug: "normal-chador" },
+    { name: "ডায়াপার", slug: "diaper" },
     { name: "মশারী", slug: "moshari" }
   ];
 
@@ -67,7 +67,7 @@ export default function Header() {
               priority
               className={styles.logoIcon}
             />
-            <span className={styles.logoText}>NittoNoton-BD</span>
+            <span className={styles.logoText}>NittoNotun-BD</span>
           </Link>
         </div>
 

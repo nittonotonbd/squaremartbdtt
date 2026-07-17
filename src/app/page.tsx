@@ -1,13 +1,14 @@
 import Header from '../components/Header';
 import CategoriesBar from '../components/CategoriesBar';
 import HeroBanner from '../components/HeroBanner';
+import DiaperSection from '../components/DiaperSection';
 import ProductGrid from '../components/ProductGrid';
 import Footer from '../components/Footer';
 import { getProducts } from '../data/products';
 
 export default async function Home() {
   const products = await getProducts();
-  
+
   return (
     <>
       <Header />
@@ -17,10 +18,12 @@ export default async function Home() {
           Nittonotonbd - Best Online Shopping in Bangladesh for Electronics & Lifestyle
         </h1>
         <HeroBanner />
+        <DiaperSection />
         <ProductGrid title="All Products" products={products} showSeeMore={true} />
       </main>
       <Footer />
     </>
   );
 }
+
 

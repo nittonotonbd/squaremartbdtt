@@ -1,121 +1,170 @@
 .footer {
-  background-color: #f8f8f8;
-  color: #333;
+  background-color: #ffffff;
+  color: #333333;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 60px;
   margin-top: 60px;
-  border-top: 1px solid #eee;
+  font-family: inherit;
 }
 
 .footerContent {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
-  text-align: center;
+  padding: 0 20px 40px;
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 1.2fr;
+  gap: 40px;
+}
+
+.column {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Column 1: Branding */
+.logoWrapper {
+  display: flex;
   align-items: center;
-}
-
-.linksContainer {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 25px;
-  margin-bottom: 30px;
-}
-
-.linksContainer a {
-  color: #333;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 15px;
-  text-transform: uppercase;
-  transition: color 0.2s;
-}
-
-.linksContainer a:hover {
-  color: #ff6600;
-}
-
-.socialIcons {
-  display: flex;
   gap: 15px;
-  margin-bottom: 40px;
-}
-
-.socialIconLink {
-  width: 40px;
-  height: 40px;
-  background-color: #666;
-  color: white;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.socialIconLink:hover {
-  background-color: #333;
-}
-
-.paymentMethods {
+  margin-bottom: 20px;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
 }
 
-.bkashLogo {
-  height: 60px;
-  width: auto;
+.logoImage {
   object-fit: contain;
 }
 
-.paymentGridWrapper {
-  width: 100%;
-  max-width: 800px;
-  border: 1px solid #ddd;
-  padding: 10px;
-  background: white;
-  border-radius: 8px;
+.logoText {
+  font-size: 32px;
+  font-weight: 700;
+  color: #111827;
+  font-family: var(--font-outfit), Georgia, serif;
 }
 
-.paymentGrid {
-  width: 100%;
-  height: auto;
-  display: block;
+.description {
+  font-size: 15px;
+  color: #4b5563;
+  line-height: 1.7;
+  margin-bottom: 25px;
+  max-width: 450px;
 }
 
-.bottomBarContainer {
-  position: relative;
+.socialRow {
+  display: flex;
+  gap: 12px;
 }
 
-.scrollTopBtn {
-  position: absolute;
-  top: -36px;
-  right: 40px;
-  width: 36px;
-  height: 36px;
-  background-color: #333;
-  color: white;
-  border: none;
+.socialBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #4b5563;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  z-index: 10;
+  transition: all 0.2s ease;
 }
 
-.scrollTopBtn:hover {
-  background-color: #555;
+.socialBtn:hover {
+  background-color: #f3f4f6;
+  color: #006b52;
+  border-color: #006b52;
+  transform: translateY(-2px);
 }
 
+/* Column 2: Support Links */
+.columnTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 24px;
+  padding-left: 10px;
+  border-left: 3.5px solid #006b52;
+  line-height: 1.2;
+  text-align: left;
+  width: 100%;
+}
+
+
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.supportLink {
+  font-size: 15px;
+  color: #4b5563;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  text-align: left;
+}
+
+.supportLink:hover {
+  color: #006b52;
+}
+
+.bullet {
+  color: #006b52;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+/* Column 3: Contact Info */
+.contactList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #4b5563;
+}
+
+.iconContainer {
+  color: #006b52;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contactLink {
+  color: #4b5563;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.contactLink:hover {
+  color: #006b52;
+}
+
+.contactText {
+  color: #4b5563;
+}
+
+/* Copyright Bottom Bar */
 .bottomBar {
-  background-color: #ff6600; /* Orange background */
   padding: 15px 20px;
+  background-color: #FF5A00;
 }
 
 .bottomBarContent {
@@ -124,31 +173,40 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
 }
 
 .bottomBar p {
-  color: #ffffff;
   font-size: 14px;
+  color: #ffffff;
   margin: 0;
 }
 
-@media (max-width: 768px) {
+
+/* Responsive Styles */
+@media (max-width: 991px) {
   .footerContent {
-    padding: 30px 15px;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
   }
   
-  .paymentGridWrapper {
-    max-width: 100%;
+  .column:first-child {
+    grid-column: span 2;
+    margin-bottom: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .footerContent {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding-bottom: 30px;
   }
 
-  .linksContainer {
-    flex-direction: column;
-    gap: 12px;
+  .column:first-child {
+    grid-column: span 1;
   }
-
-  .scrollTopBtn {
-    right: 20px;
+  
+  .logoText {
+    font-size: 28px;
   }
 }

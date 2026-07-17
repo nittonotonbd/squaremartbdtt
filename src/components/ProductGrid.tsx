@@ -47,13 +47,13 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
         <h2 className={styles.title}>{title}</h2>
         {showSeeMore && (
           <Link href="/products" className={styles.seeMore}>
-            See More <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} style={{verticalAlign: 'middle', marginLeft: '4px'}} />
+            আরো দেখুন <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
           </Link>
         )}
       </div>
       <div className={styles.grid}>
         {displayedProducts.map(product => (
-          <ProductCard 
+          <ProductCard
             key={product.id}
             id={product.id}
             slug={product.slug}
@@ -65,18 +65,18 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
           />
         ))}
       </div>
-      
+
       {totalPages > 1 && (
         <div className={styles.pagination}>
-          <button 
-            className={styles.pageBtn} 
+          <button
+            className={styles.pageBtn}
             onClick={() => handlePageChange(activePage - 1)}
             disabled={activePage === 1}
             aria-label="Previous page"
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={16} color="currentColor" strokeWidth={2} />
           </button>
-          
+
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
@@ -86,9 +86,9 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
               {page}
             </button>
           ))}
-          
-          <button 
-            className={styles.pageBtn} 
+
+          <button
+            className={styles.pageBtn}
             onClick={() => handlePageChange(activePage + 1)}
             disabled={activePage === totalPages}
             aria-label="Next page"
