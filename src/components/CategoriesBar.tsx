@@ -8,6 +8,8 @@ const categories = [
 ];
 
 export default function CategoriesBar() {
+  return null;
+  /*
   return (
     <nav className={styles.nav}>
       <ul className={styles.categoryList}>
@@ -19,4 +21,6 @@ export default function CategoriesBar() {
       </ul>
     </nav>
   );
+  */
 }
+

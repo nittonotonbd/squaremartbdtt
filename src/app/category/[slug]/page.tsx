@@ -42,7 +42,7 @@ export default async function CategoryPage({ params }: Props) {
       <CategoriesBar />
       <main style={{ padding: '20px 0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <ProductGrid title={`${categoryName}`} products={allProducts} />
+          <ProductGrid title={`${categoryName}`} products={allProducts} showAll={true} />
 
           {allProducts.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-light)' }}>

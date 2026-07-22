@@ -21,9 +21,19 @@ interface ProductGridProps {
   title: string;
   products: Product[];
   showSeeMore?: boolean;
+  seeMoreUrl?: string;
+  disablePagination?: boolean;
+  showAll?: boolean;
 }
 
-export default function ProductGrid({ title, products, showSeeMore = false }: ProductGridProps) {
+export default function ProductGrid({ 
+  title, 
+  products, 
+  showSeeMore = false,
+  seeMoreUrl = '/products',
+  disablePagination = false,
+  showAll = false
+}: ProductGridProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
@@ -31,7 +41,11 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
   const activePage = Math.min(Math.max(1, currentPage), totalPages || 1);
 
   const startIndex = (activePage - 1) * itemsPerPage;
-  const displayedProducts = products.slice(startIndex, startIndex + itemsPerPage);
+  const displayedProducts = showAll
+    ? products
+    : (disablePagination
+        ? products.slice(0, itemsPerPage)
+        : products.slice(startIndex, startIndex + itemsPerPage));
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -45,8 +59,8 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
     <section id="product-grid-section" className={styles.section}>
       <div className={styles.header}>
         <h2 className={styles.title}>{title}</h2>
-        {showSeeMore && (
-          <Link href="/products" className={styles.seeMore}>
+        {showSeeMore && !disablePagination && !showAll && (
+          <Link href={seeMoreUrl} className={styles.seeMore}>
             আরো দেখুন <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
           </Link>
         )}
@@ -66,7 +80,7 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
         ))}
       </div>
 
-      {totalPages > 1 && (
+      {!showAll && !disablePagination && totalPages > 1 && (
         <div className={styles.pagination}>
           <button
             className={styles.pageBtn}
@@ -95,6 +109,14 @@ export default function ProductGrid({ title, products, showSeeMore = false }: Pr
           >
             <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} />
           </button>
+        </div>
+      )}
+
+      {disablePagination && !showAll && (
+        <div className={styles.seeMoreBottomContainer}>
+          <Link href={seeMoreUrl} className={styles.seeMoreBottomBtn}>
+            আরো দেখুন <HugeiconsIcon icon={ArrowRight01Icon} size={16} color="currentColor" strokeWidth={2} style={{ verticalAlign: 'middle', marginLeft: '4px' }} />
+          </Link>
         </div>
       )}
     </section>

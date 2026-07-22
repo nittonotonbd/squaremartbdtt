@@ -360,6 +360,43 @@ const AdminOrdersPageContent: React.FC = () => {
     }
   };
 
+  const handleDeleteOrder = async (id: string) => {
+    if (confirm(`Are you sure you want to permanently delete order ${id}?`)) {
+      try {
+        const orderId = id.replace('#ORD-', '');
+        
+        // 1. Delete order items first
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .delete()
+          .eq('order_id', orderId);
+          
+        if (itemsError) throw itemsError;
+        
+        // 2. Delete the order
+        const { error: orderError } = await supabase
+          .from('orders')
+          .delete()
+          .eq('id', orderId);
+          
+        if (orderError) throw orderError;
+
+        // 3. Update local state
+        setOrders(prev => prev.filter(order => order.id !== id));
+        
+        // 4. Close details modal if open
+        if (selectedOrder?.id === id) {
+          setSelectedOrder(null);
+        }
+        
+        alert(`Order ${id} has been permanently deleted.`);
+      } catch (error) {
+        console.error('Error deleting order:', error);
+        alert('Failed to delete order.');
+      }
+    }
+  };
+
 
   const handlePrintInvoice = (order: any) => {
     const invoiceWindow = window.open('', '_blank', 'width=800,height=900');
@@ -510,6 +547,21 @@ const AdminOrdersPageContent: React.FC = () => {
                 >
                   {isEditing ? 'Cancel Edit' : 'Edit Order'}
                 </button>
+                {!isEditing && (
+                  <button
+                    className={styles.secondaryBtn}
+                    style={{ 
+                      padding: '6px 12px', 
+                      fontSize: '13px', 
+                      color: '#ef4444', 
+                      borderColor: '#fca5a5',
+                      backgroundColor: '#fef2f2'
+                    }}
+                    onClick={() => handleDeleteOrder(selectedOrder.id)}
+                  >
+                    Delete Order
+                  </button>
+                )}
                 <button className={styles.iconBtn} onClick={closeOrderDetail}>
                   <HugeiconsIcon icon={Cancel01Icon} size={24} />
                 </button>
@@ -962,14 +1014,24 @@ const AdminOrdersPageContent: React.FC = () => {
                             </button>
                             <div style={{ height: '1px', backgroundColor: 'var(--border-color)', margin: '4px 0' }}></div>
                             <button 
-                              className={`${styles.actionDropdownItem} ${styles.actionDropdownItemDanger}`}
+                              className={styles.actionDropdownItem}
                               onClick={() => {
                                 handleCancelOrder(order.id);
                                 setActiveMenu(null);
                               }}
                             >
-                              <HugeiconsIcon icon={Delete02Icon} size={16} />
+                              <HugeiconsIcon icon={Cancel01Icon} size={16} />
                               <span>Cancel Order</span>
+                            </button>
+                            <button 
+                              className={`${styles.actionDropdownItem} ${styles.actionDropdownItemDanger}`}
+                              onClick={() => {
+                                handleDeleteOrder(order.id);
+                                setActiveMenu(null);
+                              }}
+                            >
+                              <HugeiconsIcon icon={Delete02Icon} size={16} />
+                              <span>Delete Order</span>
                             </button>
                           </div>
                         )}
@@ -1035,11 +1097,18 @@ const AdminOrdersPageContent: React.FC = () => {
                     <span>Invoice</span>
                   </button>
                   <button 
-                    className={`${styles.mobileActionBtn} ${styles.actionDropdownItemDanger}`}
+                    className={styles.mobileActionBtn}
                     onClick={() => handleCancelOrder(order.id)}
                   >
-                    <HugeiconsIcon icon={Delete02Icon} size={16} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={16} />
                     <span>Cancel</span>
+                  </button>
+                  <button 
+                    className={`${styles.mobileActionBtn} ${styles.actionDropdownItemDanger}`}
+                    onClick={() => handleDeleteOrder(order.id)}
+                  >
+                    <HugeiconsIcon icon={Delete02Icon} size={16} />
+                    <span>Delete</span>
                   </button>
                 </div>
               </div>

@@ -7,7 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Facebook01Icon,
   InstagramIcon,
-  YoutubeIcon,
+  TiktokIcon,
   Location01Icon,
   CallIcon,
   WhatsappIcon,
@@ -37,7 +37,7 @@ export default function Footer() {
           </p>
           <div className={styles.socialRow}>
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/share/1AgQt9VYXB/"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.socialBtn}
@@ -46,16 +46,16 @@ export default function Footer() {
               <HugeiconsIcon icon={Facebook01Icon} size={18} color="currentColor" />
             </a>
             <a
-              href="https://youtube.com"
+              href="https://www.tiktok.com/@nittonotunbd?_r=1&_t=ZS-98FNBmuH9ym"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.socialBtn}
-              aria-label="YouTube"
+              aria-label="TikTok"
             >
-              <HugeiconsIcon icon={YoutubeIcon} size={18} color="currentColor" />
+              <HugeiconsIcon icon={TiktokIcon} size={18} color="currentColor" />
             </a>
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/nittonotunbd"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.socialBtn}
@@ -113,7 +113,7 @@ export default function Footer() {
               <div className={styles.iconContainer}>
                 <HugeiconsIcon icon={WhatsappIcon} size={18} color="currentColor" />
               </div>
-              <a href="https://wa.me/8801911940406" target="_blank" rel="noopener noreferrer" className={styles.contactLink}>01911940406</a>
+              <a href="https://wa.me/8801887245556" target="_blank" rel="noopener noreferrer" className={styles.contactLink}>+8801887245556</a>
             </li>
             <li className={styles.contactItem}>
               <div className={styles.iconContainer}>

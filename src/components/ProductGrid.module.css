@@ -99,3 +99,28 @@
     gap: 10px;
   }
 }
+
+.seeMoreBottomContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.seeMoreBottomBtn {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.seeMoreBottomBtn:hover {
+  background-color: var(--primary-hover);
+}
+
