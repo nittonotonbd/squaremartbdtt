@@ -15,30 +15,35 @@ interface SalesData {
   color: string;
 }
 
-const activityData = [
-  { day: 'Apr 18', value: 30 },
-  { day: 'Apr 19', value: 30 },
-  { day: 'Apr 20', value: 35 },
-  { day: 'Apr 21', value: 80 },
-  { day: 'Apr 22', value: 65 },
-  { day: 'Apr 23', value: 60 },
-  { day: 'Apr 24', value: 45 },
-  { day: 'Apr 25', value: 75 },
-  { day: 'Apr 26', value: 85 },
-  { day: 'Apr 27', value: 40 },
-  { day: 'Apr 28', value: 70 },
-  { day: 'Apr 29', value: 45 },
-  { day: 'Apr 30', value: 55 },
-  { day: 'May 01', value: 35 },
-];
+interface SalesAnalyticsProps {
+  salesData?: SalesData[];
+  activityData?: { day: string; value: number }[];
+}
 
-const SalesAnalytics: React.FC = () => {
-  const salesData: SalesData[] = [
+const SalesAnalytics: React.FC<SalesAnalyticsProps> = ({
+  salesData = [
     { category: 'Electronics', percentage: 45, color: '#ff5a00' },
     { category: 'Fashion', percentage: 30, color: '#3b82f6' },
     { category: 'Home & Living', percentage: 15, color: '#10b981' },
     { category: 'Accessories', percentage: 10, color: '#8b5cf6' },
-  ];
+  ],
+  activityData = [
+    { day: 'Apr 18', value: 30 },
+    { day: 'Apr 19', value: 30 },
+    { day: 'Apr 20', value: 35 },
+    { day: 'Apr 21', value: 80 },
+    { day: 'Apr 22', value: 65 },
+    { day: 'Apr 23', value: 60 },
+    { day: 'Apr 24', value: 45 },
+    { day: 'Apr 25', value: 75 },
+    { day: 'Apr 26', value: 85 },
+    { day: 'Apr 27', value: 40 },
+    { day: 'Apr 28', value: 70 },
+    { day: 'Apr 29', value: 45 },
+    { day: 'Apr 30', value: 55 },
+    { day: 'May 01', value: 35 },
+  ]
+}) => {
 
   return (
     <div style={{

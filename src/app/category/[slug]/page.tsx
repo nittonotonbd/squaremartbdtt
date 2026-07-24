@@ -13,12 +13,14 @@ interface Props {
 const categoryMap: Record<string, string> = {
   "waterproof-chador": "ওয়াটারপ্রুফ চাদর",
   "normal-chador": "ডায়াপার",
+  "diaper": "ডায়াপার",
   "moshari": "মশারী"
 };
 
 // এই slug গুলোতে extra categories-ও মিলিয়ে দেখাবে
 const extraCategoryMap: Record<string, string[]> = {
   "normal-chador": ["নরমাল চাদর"],
+  "diaper": ["নরমাল চাদর"],
 };
 
 export default async function CategoryPage({ params }: Props) {

@@ -18,7 +18,7 @@ export default function Header() {
 
   const categories = [
     { name: "ওয়াটারপ্রুফ চাদর", slug: "waterproof-chador" },
-    { name: "ডায়াপার", slug: "diaper" },
+    { name: "ডায়াপার", slug: "normal-chador" },
     { name: "মশারী", slug: "moshari" }
   ];
 

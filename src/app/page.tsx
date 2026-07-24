@@ -3,6 +3,7 @@ import CategoriesBar from '../components/CategoriesBar';
 import HeroBanner from '../components/HeroBanner';
 import ProductGrid from '../components/ProductGrid';
 import Footer from '../components/Footer';
+import WhatsAppButton from '../components/WhatsAppButton';
 import { getProducts } from '../data/products';
 
 const mockDiaperProducts = [
@@ -15,7 +16,7 @@ const mockDiaperProducts = [
 export default async function Home() {
   const products = await getProducts();
 
-  const diaperProductsFromDB = products.filter(p => p.category === 'ডায়াপার')
+  const diaperProductsFromDB = products.filter(p => p.category && p.category.normalize('NFC') === 'ডায়াপার'.normalize('NFC'))
     .sort((a, b) => b.price - a.price);
 
   // Supabase-এ ডায়াপার না থাকলে mock data ব্যবহার করো
@@ -53,6 +54,7 @@ export default async function Home() {
         />
       </main>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }

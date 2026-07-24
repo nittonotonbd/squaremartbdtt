@@ -24,6 +24,9 @@ import { TableRowSkeleton } from '../../../components/admin/Skeleton';
 const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [categoryFilter, setCategoryFilter] = React.useState('All Categories');
+  const [stockFilter, setStockFilter] = React.useState('Stock Status');
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -72,6 +75,43 @@ const AdminProductsPage: React.FC = () => {
     });
   }, [products]);
 
+  const filteredProducts = React.useMemo(() => {
+    const normalizeBengali = (str: string) => {
+      if (!str) return '';
+      return str
+        .replace(/\u09af\u09bc/g, '\u09df') // য + nukta -> য়
+        .replace(/\u09a1\u09bc/g, '\u09dc') // ড + nukta -> ড়
+        .replace(/\u09a2\u09bc/g, '\u09dd'); // ঢ + nukta -> ঢ়
+    };
+
+    return parsedProducts.filter(product => {
+      // Search filter
+      const search = searchQuery.toLowerCase().trim();
+      const matchesSearch = search === '' ||
+        product.title.toLowerCase().includes(search) ||
+        (product.productCode && product.productCode.toLowerCase().includes(search));
+
+      // Category filter
+      let matchesCategory = true;
+      if (categoryFilter !== 'All Categories') {
+        const normFilter = normalizeBengali(categoryFilter);
+        const normProdCat = normalizeBengali(product.category || '');
+        matchesCategory = normProdCat === normFilter;
+      }
+
+      // Stock status filter
+      let matchesStock = true;
+      if (stockFilter !== 'Stock Status') {
+        const filterVal = stockFilter.toLowerCase().replace(/\s+/g, '');
+        const prodVal = product.stockStatus.toLowerCase().replace(/\s+/g, '');
+        matchesStock = (filterVal === 'instock' && prodVal === 'instock') ||
+                      (filterVal === 'outofstock' && prodVal === 'outofstock');
+      }
+
+      return matchesSearch && matchesCategory && matchesStock;
+    });
+  }, [parsedProducts, searchQuery, categoryFilter, stockFilter]);
+
   const handleDelete = async (id: number) => {
     if (confirm('Are you sure you want to delete this product?')) {
       const { error } = await supabase
@@ -115,19 +155,29 @@ const AdminProductsPage: React.FC = () => {
             type="text"
             placeholder="Search products by name, SKU..."
             className={styles.searchInput}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className={styles.filterGroup}>
-          <select className={styles.select}>
-            <option>All Categories</option>
-            <option>ওয়াটারপ্রুফ চাদর</option>
-            <option>নরমাল চাদর</option>
-            <option>মশারী</option>
+          <select 
+            className={styles.select}
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+          >
+            <option value="All Categories">All Categories</option>
+            <option value="ওয়াটারপ্রুফ চাদর">ওয়াটারপ্রুফ চাদর</option>
+            <option value="ডায়াপার">ডায়াপার</option>
+            <option value="মশারী">মশারী</option>
           </select>
-          <select className={styles.select}>
-            <option>Stock Status</option>
-            <option>In Stock</option>
-            <option>Out of Stock</option>
+          <select 
+            className={styles.select}
+            value={stockFilter}
+            onChange={(e) => setStockFilter(e.target.value)}
+          >
+            <option value="Stock Status">Stock Status</option>
+            <option value="In Stock">In Stock</option>
+            <option value="Out of Stock">Out of Stock</option>
           </select>
         </div>
       </div>
@@ -150,8 +200,8 @@ const AdminProductsPage: React.FC = () => {
                 Array.from({ length: 8 }).map((_, i) => (
                   <TableRowSkeleton key={i} columns={6} />
                 ))
-              ) : parsedProducts.length > 0 ? (
-                parsedProducts.map((product) => (
+              ) : filteredProducts.length > 0 ? (
+                filteredProducts.map((product) => (
                   <tr key={product.id}>
                     <td>
                       <div className={styles.productInfoCell}>
@@ -217,7 +267,7 @@ const AdminProductsPage: React.FC = () => {
 
         <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p style={{ color: 'var(--text-gray)', fontSize: '14px' }}>
-            Showing 1 to {parsedProducts.length} of {parsedProducts.length} entries
+            Showing 1 to {filteredProducts.length} of {filteredProducts.length} entries
           </p>
 
           <div style={{ display: 'flex', gap: '8px' }}>

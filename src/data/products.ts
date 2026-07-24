@@ -42,7 +42,6 @@ export const mockProducts: Product[] = [
       '/images/products/mini_turbo_fan.png',
     ],
     description: '<p>Stay cool anywhere with this portable mini turbo fan. Features 3 speed settings and a long-lasting rechargeable battery.</p>',
-    category: 'নরমাল চাদর',
     stockStatus: 'In Stock',
     callToOrder: '01942-838348'
   },
@@ -66,7 +65,7 @@ export const mockProducts: Product[] = [
     title: '৫ পিস রি-ইউজেবল ডায়াপার',
     price: 950,
     imageUrl: '/images/products/diaper1.png',
-    category: 'নরমাল চাদর',
+    category: 'ডায়াপার',
     stockStatus: 'In Stock',
     callToOrder: '01942-838348'
   },
@@ -76,7 +75,7 @@ export const mockProducts: Product[] = [
     title: '৪ পিস রি-ইউজেবল ডায়াপার',
     price: 850,
     imageUrl: '/images/products/diaper2.png',
-    category: 'নরমাল চাদর',
+    category: 'ডায়াপার',
     stockStatus: 'In Stock',
     callToOrder: '01942-838348'
   },
@@ -86,7 +85,7 @@ export const mockProducts: Product[] = [
     title: '৩ পিস রি-ইউজেবল ডায়াপার',
     price: 550,
     imageUrl: '/images/products/diaper3.png',
-    category: 'নরমাল চাদর',
+    category: 'ডায়াপার',
     stockStatus: 'In Stock',
     callToOrder: '01942-838348'
   },
@@ -96,7 +95,7 @@ export const mockProducts: Product[] = [
     title: '২ পিস রি-ইউজেবল ডায়াপার',
     price: 450,
     imageUrl: '/images/products/diaper4.png',
-    category: 'নরমাল চাদর',
+    category: 'ডায়াপার',
     stockStatus: 'In Stock',
     callToOrder: '01942-838348'
   },
@@ -230,19 +229,40 @@ export async function getProductById(id: number): Promise<Product | undefined> {
 }
 
 export async function getProductsByCategory(category: string): Promise<Product[]> {
+  const cleanCat = category
+    .replace(/\u09af\u09bc/g, '\u09df') // য + nukta -> য়
+    .replace(/\u09a1\u09bc/g, '\u09dc') // ড + nukta -> ড়
+    .replace(/\u09a2\u09bc/g, '\u09dd'); // ঢ + nukta -> ঢ়
+  const altCat = category
+    .replace(/\u09df/g, '\u09af\u09bc')
+    .replace(/\u09dc/g, '\u09a1\u09bc')
+    .replace(/\u09dd/g, '\u09a2\u09bc');
+
+  const categories = Array.from(new Set([
+    category,
+    cleanCat,
+    altCat,
+    category.normalize('NFC'),
+    category.normalize('NFD'),
+    cleanCat.normalize('NFC'),
+    cleanCat.normalize('NFD'),
+    altCat.normalize('NFC'),
+    altCat.normalize('NFD')
+  ]));
+
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .eq('category', category)
+    .in('category', categories)
     .order('created_at', { ascending: false });
 
   if (error) {
     console.error('Error fetching products by category:', error);
-    return mockProducts.filter(p => p.category === category);
+    return mockProducts.filter(p => p.category && categories.some(cat => p.category!.normalize('NFC') === cat.normalize('NFC')));
   }
 
   if (!data || data.length === 0) {
-    return mockProducts.filter(p => p.category === category);
+    return mockProducts.filter(p => p.category && categories.some(cat => p.category!.normalize('NFC') === cat.normalize('NFC')));
   }
 
   return data.map(p => ({

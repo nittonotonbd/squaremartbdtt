@@ -45,10 +45,10 @@ export default function ProductCard({ id, slug, title, price, originalPrice, ima
         <div className={styles.imageContainer}>
           {discount > 0 && <span className={styles.badge}>-{discount}%</span>}
           {imageUrl ? (
-            <Image 
-              src={imageUrl} 
-              alt={title} 
-              fill 
+            <Image
+              src={imageUrl}
+              alt={title}
+              fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className={styles.image}
               priority={id <= 4} // Load first 4 images with priority
