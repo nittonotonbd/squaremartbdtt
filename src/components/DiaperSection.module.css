@@ -40,45 +40,46 @@
 
 .card {
   background: #ffffff;
-  border: 1px solid #eaeaea;
-  border-radius: 12px;
-  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
   overflow: hidden;
 }
 
 .cardLink {
   text-decoration: none;
   color: inherit;
-  display: block;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.09);
+  border-color: #cbd5e1;
 }
-
 
 .imageWrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 16px;
-  background-color: #f9fafb;
+  margin-bottom: 12px;
+  background-color: #f8fafc;
 }
 
 .image {
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.4s ease;
 }
 
 .card:hover .image {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .details {
@@ -86,53 +87,61 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  padding: 4px 4px 8px 4px;
 }
 
 .productTitle {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
+  color: #111827;
   margin-bottom: 8px;
   line-height: 1.4;
+  text-align: center;
 }
 
 .price {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 800;
-  color: #FF5A00;
-  margin-bottom: 16px;
+  color: #ff0000;
+  margin-bottom: 6px;
+  text-align: center;
 }
 
 .orderBtn {
   width: 100%;
-  background-color: #FF5A00;
+  background-color: #ff5500;
+  background-image: linear-gradient(180deg, #ff6000 0%, #ff4800 100%);
   color: #ffffff;
   border: none;
-  border-radius: 30px;
-  padding: 12px 20px;
-  font-size: 15px;
+  border-radius: 25px;
+  height: 44px;
+  font-size: 16px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.22);
 }
 
 .orderBtn:hover {
-  background-color: #e04f00;
-  transform: scale(1.02);
+  background-color: #e04b00;
+  background-image: linear-gradient(180deg, #f55500 0%, #e03e00 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(255, 85, 0, 0.32);
 }
 
 .arrow {
-  font-size: 14px;
+  font-size: 16px;
   transition: transform 0.2s ease;
 }
 
 .orderBtn:hover .arrow {
   transform: translateX(4px);
 }
+
 
 /* Responsive adjustments */
 @media (max-width: 1024px) {
