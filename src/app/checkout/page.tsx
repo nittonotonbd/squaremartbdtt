@@ -12,9 +12,35 @@ import { supabase } from '../../lib/supabase';
 import { fbqEvent } from '../../lib/metaPixel';
 
 
+const getBaseTitle = (title: string): string => {
+  return title
+    .replace(/\s*\(6\/7\s*Feet\)/i, '')
+    .replace(/\s*\(7\/8\s*Feet\)/i, '')
+    .replace(/\s*\(৬\/৭\s*ফুট\)/i, '')
+    .replace(/\s*\(৭\/৮\s*ফুট\)/i, '')
+    .trim();
+};
+
+const getBaseId = (id: any): string => {
+  if (typeof id === 'string' && id.includes('-')) {
+    return id.split('-')[0];
+  }
+  return String(id);
+};
+
+const isOptionActive = (itemId: any, optId: any, itemPrice: number, optPrice: number): boolean => {
+  if (itemId === optId) return true;
+  const cleanItemId = getBaseId(itemId);
+  const cleanOptId = getBaseId(optId);
+  if (cleanItemId === cleanOptId) {
+    return itemPrice === optPrice;
+  }
+  return false;
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
-  const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart } = useCart();
+  const { cartItems, updateQuantity, removeFromCart, getCartTotal, clearCart, changeCartItemProduct } = useCart();
   const subtotal = getCartTotal();
   const [shippingCost, setShippingCost] = useState(0); // Free Shipping
   const total = subtotal + shippingCost;
@@ -185,28 +211,93 @@ export default function CheckoutPage() {
               </div>
               
               <div className={styles.tableBody}>
-                {cartItems.map(item => (
-                  <div key={item.id} className={styles.tableRow}>
-                    <div className={styles.colProduct}>
-                      <div className={styles.itemImage} style={{ backgroundImage: `url(${item.imageUrl})` }}></div>
-                      <span>{item.title}</span>
-                    </div>
-                    <div className={styles.colPrice}>{item.price} টাকা</div>
-                    <div className={styles.colQty}>
-                      <div className={styles.qtyControls}>
-                        <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
-                        <span>{item.quantity}</span>
-                        <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                {cartItems.length === 0 ? (
+                  <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>কার্টে কোন প্রোডাক্ট নেই</div>
+                ) : cartItems.map(item => {
+                  const isBedCover = item.title.toLowerCase().includes('waterproof') ||
+                    item.title.toLowerCase().includes('bed cover') ||
+                    item.title.toLowerCase().includes('bedsheet') ||
+                    item.title.includes('চাদর') ||
+                    item.id === 4 ||
+                    item.id === 5 ||
+                    String(item.id).includes('6x7') ||
+                    String(item.id).includes('7x8');
+
+                  const itemSizeOptions = isBedCover ? [
+                    {
+                      id: `${getBaseId(item.id)}-6x7`,
+                      title: `${getBaseTitle(item.title)} (6/7 Feet)`,
+                      price: 1150,
+                      sizeName: 'সাইজ, ৬ফুট x ৭ ফুট',
+                      imageUrl: item.imageUrl
+                    },
+                    {
+                      id: `${getBaseId(item.id)}-7x8`,
+                      title: `${getBaseTitle(item.title)} (7/8 Feet)`,
+                      price: 1350,
+                      sizeName: 'সাইজ, ৭ফুট x ৮ ফুট',
+                      imageUrl: item.imageUrl
+                    }
+                  ] : [];
+
+                  return (
+                    <div key={item.id} className={styles.tableRow}>
+                      <div className={styles.rowMainInfo}>
+                        <div className={styles.colProduct}>
+                          <div className={styles.itemImage} style={{ backgroundImage: `url(${item.imageUrl})` }}></div>
+                          <span>{item.title}</span>
+                        </div>
+                        <div className={styles.colPrice}>{item.price} টাকা</div>
+                        <div className={styles.colQty}>
+                          <div className={styles.qtyControls}>
+                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity - 1)}>-</button>
+                            <span>{item.quantity}</span>
+                            <button type="button" onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+                          </div>
+                        </div>
+                        <div className={styles.colTotal}>
+                          {item.price * item.quantity} টাকা
+                          <button type="button" onClick={() => removeFromCart(item.id)} className={styles.removeBtn}>
+                            <HugeiconsIcon icon={Delete01Icon} size={16} color="#aaa" />
+                          </button>
+                        </div>
                       </div>
+
+                      {isBedCover && (
+                        <div className={styles.cartSizeSelectionBlock}>
+                          <span className={styles.cartSizeSelectLabel}>সাইজ নির্ধারণ করুন:</span>
+                          <div className={styles.cartSizeOptionsGrid}>
+                            {itemSizeOptions.map((opt) => {
+                              const isActive = isOptionActive(item.id, opt.id, item.price, opt.price);
+                              return (
+                                <div
+                                  key={opt.id}
+                                  className={`${styles.cartSizeOptionCard} ${isActive ? styles.cartActiveSizeCard : ''}`}
+                                  onClick={() => {
+                                    if (!isActive) {
+                                      changeCartItemProduct(item.id, {
+                                        id: opt.id,
+                                        title: opt.title,
+                                        price: opt.price,
+                                        imageUrl: opt.imageUrl
+                                      });
+                                    }
+                                  }}
+                                >
+                                  <span className={styles.cartSizeRadioCircle}>
+                                    {isActive && <span className={styles.cartSizeRadioInnerCircle}></span>}
+                                  </span>
+                                  <span className={styles.cartSizeName}>{opt.sizeName}</span>
+                                  <span className={styles.cartSizePrice}>{opt.price} টাকা</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className={styles.colTotal}>
-                      {item.price * item.quantity} টাকা
-                      <button type="button" onClick={() => removeFromCart(item.id)} className={styles.removeBtn}>
-                        <HugeiconsIcon icon={Delete01Icon} size={16} color="#aaa" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
             

@@ -175,10 +175,111 @@
 
 .tableRow {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   padding: 15px 0;
   border-bottom: 1px dashed var(--border-color);
   font-size: 13px;
+  gap: 12px;
+}
+
+.rowMainInfo {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.cartSizeSelectionBlock {
+  border-top: 1px dashed #dee2e6;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.cartSizeSelectLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cartSizeOptionsGrid {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.cartSizeOptionCard {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  font-size: 12px;
+}
+
+.cartSizeOptionCard:hover {
+  border-color: #008000;
+  background-color: #f4faf6;
+}
+
+.cartActiveSizeCard {
+  border-color: #008000 !important;
+  background-color: #f4faf6 !important;
+  color: #008000 !important;
+  font-weight: 700;
+}
+
+.cartSizeRadioCircle {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid #adb5bd;
+  border-radius: 50%;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cartActiveSizeCard .cartSizeRadioCircle {
+  border-color: #007bff;
+}
+
+.cartSizeRadioInnerCircle {
+  width: 8px;
+  height: 8px;
+  background-color: #007bff;
+  border-radius: 50%;
+}
+
+.cartSizeName {
+  color: #333;
+}
+
+.cartActiveSizeCard .cartSizeName {
+  color: #008000;
+  font-weight: 700;
+}
+
+.cartSizePrice {
+  color: #666;
+  font-weight: 600;
+}
+
+.cartActiveSizeCard .cartSizePrice {
+  color: #008000;
+  font-weight: 700;
 }
 
 .colProduct { flex: 4; display: flex; align-items: center; gap: 10px; }
