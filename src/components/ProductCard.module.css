@@ -9,7 +9,7 @@
   flex-direction: column;
   position: relative;
   height: 100%;
-  padding: 12px;
+  padding: 0;
 }
 
 .card:hover {
@@ -31,7 +31,7 @@
   width: 100%;
   padding-top: 100%; /* 1:1 Aspect Ratio */
   background-color: #f8fafc;
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
 }
 
@@ -71,7 +71,7 @@
 }
 
 .details {
-  padding: 12px 4px 8px 4px;
+  padding: 12px 10px 8px 10px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -109,72 +109,59 @@
 }
 
 .buttonContainer {
-  padding: 4px 0 0 0;
+  display: flex;
+  gap: 8px;
+  padding: 0 15px 15px;
   margin-top: auto;
-  width: 100%;
 }
 
 .buyNowBtn {
-  width: 100%;
-  background-color: #ff5500;
-  background-image: linear-gradient(180deg, #ff6000 0%, #ff4800 100%);
-  color: #ffffff;
+  flex: 1;
+  background-color: #008000;
+  color: white;
   border: none;
-  height: 44px;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 25px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 12px rgba(255, 85, 0, 0.22);
 }
 
-.buyNowBtn:hover {
-  background-color: #e04b00;
-  background-image: linear-gradient(180deg, #f55500 0%, #e03e00 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(255, 85, 0, 0.32);
+.addToCartBtn {
+  width: 40px;
+  height: 40px;
+  background-color: #ff6600;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
-.buyNowBtn:active {
-  transform: translateY(0);
-}
-
-.arrow {
-  font-size: 16px;
-  transition: transform 0.2s ease;
-}
-
-.buyNowBtn:hover .arrow {
-  transform: translateX(4px);
+.buyNowBtn:hover, .addToCartBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
-  .card {
-    padding: 10px;
-    border-radius: 12px;
-  }
-  .imageContainer {
-    border-radius: 8px;
-  }
-  .title {
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-  .price {
-    font-size: 15px;
+  .buttonContainer {
+    padding: 0 10px 10px;
+    gap: 5px;
   }
   .buyNowBtn {
-    height: 38px;
-    font-size: 14px;
-    border-radius: 20px;
+    font-size: 12px;
+    height: 36px;
   }
-  .arrow {
-    font-size: 14px;
+  .addToCartBtn {
+    width: 36px;
+    height: 36px;
   }
 }
 

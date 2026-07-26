@@ -5,6 +5,7 @@ export interface Product {
   slug: string;
   title: string;
   price: number;
+  maxPrice?: number;
   originalPrice?: number;
   imageUrl: string;
   galleryImages?: string[];
@@ -325,13 +326,15 @@ export const groupProductsByBaseTitle = (products: Product[]): Product[] => {
     if (!seen.has(baseTitle)) {
       seen.add(baseTitle);
       
-      // Find all products sharing this base title to get the lowest price
+      // Find all products sharing this base title to get the lowest and highest price
       const variations = products.filter(item => getBaseTitle(item.title) === baseTitle);
       let lowestPrice = p.price;
+      let highestPrice = p.price;
       let lowestOriginalPrice = p.originalPrice;
       
       if (variations.length > 1) {
         lowestPrice = Math.min(...variations.map(v => v.price));
+        highestPrice = Math.max(...variations.map(v => v.price));
         // Find the variant with the lowest price to get its matching original price
         const cheapestVariant = variations.find(v => v.price === lowestPrice);
         if (cheapestVariant) {
@@ -343,6 +346,7 @@ export const groupProductsByBaseTitle = (products: Product[]): Product[] => {
         ...p,
         title: baseTitle,
         price: lowestPrice,
+        maxPrice: highestPrice > lowestPrice ? highestPrice : undefined,
         originalPrice: lowestOriginalPrice
       });
     }

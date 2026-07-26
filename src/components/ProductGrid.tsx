@@ -12,9 +12,11 @@ interface Product {
   slug: string;
   title: string;
   price: number;
+  maxPrice?: number;
   originalPrice?: number;
   imageUrl?: string;
   productCode?: string;
+  description?: string;
 }
 
 interface ProductGridProps {
@@ -73,9 +75,11 @@ export default function ProductGrid({
             slug={product.slug}
             title={product.title}
             price={product.price}
+            maxPrice={product.maxPrice}
             originalPrice={product.originalPrice}
             imageUrl={product.imageUrl}
             productCode={product.productCode}
+            description={product.description}
           />
         ))}
       </div>

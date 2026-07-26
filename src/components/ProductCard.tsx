@@ -4,6 +4,8 @@ import React from 'react';
 import styles from './ProductCard.module.css';
 import { useCart } from '../context/CartContext';
 import { useRouter } from 'next/navigation';
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 import { cleanTitle } from '../data/products';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -13,26 +15,60 @@ interface ProductCardProps {
   slug: string;
   title: string;
   price: number;
+  maxPrice?: number;
   originalPrice?: number;
   imageUrl?: string;
   productCode?: string;
+  description?: string;
 }
 
-export default function ProductCard({ id, slug, title, price, originalPrice, imageUrl, productCode }: ProductCardProps) {
-  const discount = originalPrice && originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+export default function ProductCard({ id, slug, title, price, maxPrice, originalPrice, imageUrl, productCode, description }: ProductCardProps) {
   const { addToCart } = useCart();
   const router = useRouter();
+
+  let minPrice = price;
+  let maxPriceVal = maxPrice ?? price;
+
+  if (description) {
+    try {
+      if (typeof description === 'string' && (description.trim().startsWith('{') || description.trim().startsWith('['))) {
+        const parsed = JSON.parse(description);
+        if (parsed && parsed.sizes) {
+          const activePrices: number[] = [];
+          Object.values(parsed.sizes).forEach((s: any) => {
+            if (s && s.enabled && typeof s.price === 'number') {
+              activePrices.push(s.price);
+            }
+          });
+          if (activePrices.length > 0) {
+            minPrice = Math.min(...activePrices);
+            maxPriceVal = Math.max(...activePrices);
+          }
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  const discount = originalPrice && originalPrice > minPrice ? Math.round(((originalPrice - minPrice) / originalPrice) * 100) : 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({ id, title, price: minPrice, imageUrl });
+  };
 
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart({ id, title, price, imageUrl });
+    addToCart({ id, title, price: minPrice, imageUrl });
     router.push('/checkout');
   };
 
-  const formattedPrice = originalPrice && originalPrice > price
-    ? `৳ ${price.toLocaleString('en-US')} – ৳ ${originalPrice.toLocaleString('en-US')}`
-    : `৳ ${price.toLocaleString('en-US')}`;
+  const formattedPrice = maxPriceVal > minPrice
+    ? `৳ ${minPrice.toLocaleString('en-US')} – ৳ ${maxPriceVal.toLocaleString('en-US')}`
+    : `৳ ${minPrice.toLocaleString('en-US')}`;
 
   const cleanedTitle = cleanTitle(title, productCode);
 
@@ -65,8 +101,10 @@ export default function ProductCard({ id, slug, title, price, originalPrice, ima
       </Link>
       <div className={styles.buttonContainer}>
         <button className={styles.buyNowBtn} onClick={handleBuyNow}>
-          <span>অর্ডার করুন</span>
-          <span className={styles.arrow}>➔</span>
+          অর্ডার করুন
+        </button>
+        <button className={styles.addToCartBtn} onClick={handleAddToCart} title="Add to Cart">
+          <HugeiconsIcon icon={ShoppingCart01Icon} size={18} color="white" />
         </button>
       </div>
     </div>
