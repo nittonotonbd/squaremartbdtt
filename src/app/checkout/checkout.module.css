@@ -200,16 +200,16 @@
 }
 
 .cartSizeSelectLabel {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  color: #333;
+  margin-bottom: 8px;
+  display: block;
 }
 
 .cartSizeOptionsGrid {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   flex-wrap: wrap;
 }
@@ -225,7 +225,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .cartSizeOptionCard:hover {
@@ -236,13 +237,11 @@
 .cartActiveSizeCard {
   border-color: #008000 !important;
   background-color: #f4faf6 !important;
-  color: #008000 !important;
-  font-weight: 700;
 }
 
 .cartSizeRadioCircle {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border: 1.5px solid #adb5bd;
   border-radius: 50%;
   background-color: #fff;
@@ -253,7 +252,7 @@
 }
 
 .cartActiveSizeCard .cartSizeRadioCircle {
-  border-color: #007bff;
+  border-color: #007bff !important;
 }
 
 .cartSizeRadioInnerCircle {
@@ -268,18 +267,19 @@
 }
 
 .cartActiveSizeCard .cartSizeName {
-  color: #008000;
-  font-weight: 700;
+  color: #008000 !important;
+  font-weight: 700 !important;
 }
 
 .cartSizePrice {
-  color: #666;
+  color: #333;
   font-weight: 600;
+  margin-left: 2px;
 }
 
 .cartActiveSizeCard .cartSizePrice {
-  color: #008000;
-  font-weight: 700;
+  color: #008000 !important;
+  font-weight: 700 !important;
 }
 
 .colProduct { flex: 4; display: flex; align-items: center; gap: 10px; }
