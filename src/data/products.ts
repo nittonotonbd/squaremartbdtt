@@ -145,60 +145,73 @@ export async function getProducts(): Promise<Product[]> {
     return mockProducts; // Fallback
   }
 
-  return data.map(p => ({
-    id: p.id,
-    slug: p.slug || generateSlug(p.title) || p.id.toString(),
-    title: p.title,
-    price: p.price,
-    originalPrice: p.original_price,
-    imageUrl: p.image_url,
-    galleryImages: p.gallery_images,
-    description: p.description,
-    category: p.category,
-    stockStatus: p.stock_status,
-    callToOrder: p.call_to_order,
-    productCode: extractProductCode(p.description, p.title)
-  }));
+  return data.map(p => {
+    let slug = p.slug;
+    if (!slug || slug === 'waterproof-bedsheet' || slug === 'reusable-diaper') {
+      const code = extractProductCode(p.description, p.title);
+      const base = generateSlug(p.title) || 'product';
+      slug = code ? `${base}-${code.toLowerCase()}` : `${base}-${p.id}`;
+    }
+    return {
+      id: p.id,
+      slug: slug,
+      title: p.title,
+      price: p.price,
+      originalPrice: p.original_price,
+      imageUrl: p.image_url,
+      galleryImages: p.gallery_images,
+      description: p.description,
+      category: p.category,
+      stockStatus: p.stock_status,
+      callToOrder: p.call_to_order,
+      productCode: extractProductCode(p.description, p.title)
+    };
+  });
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
+  const decodedSlug = decodeURIComponent(slug).trim();
+
   // First attempt: fetch by exact slug
   const { data, error } = await supabase
     .from('products')
     .select('*')
-    .eq('slug', slug)
-    .single();
+    .eq('slug', decodedSlug)
+    .limit(1);
 
-  if (!error && data) {
+  if (!error && data && data.length > 0) {
+    const item = data[0];
     return {
-      id: data.id,
-      slug: data.slug,
-      title: data.title,
-      price: data.price,
-      originalPrice: data.original_price,
-      imageUrl: data.image_url,
-      galleryImages: data.gallery_images,
-      description: data.description,
-      category: data.category,
-      stockStatus: data.stock_status,
-      callToOrder: data.call_to_order,
-      productCode: extractProductCode(data.description, data.title)
+      id: item.id,
+      slug: item.slug,
+      title: item.title,
+      price: item.price,
+      originalPrice: item.original_price,
+      imageUrl: item.image_url,
+      galleryImages: item.gallery_images,
+      description: item.description,
+      category: item.category,
+      stockStatus: item.stock_status,
+      callToOrder: item.call_to_order,
+      productCode: extractProductCode(item.description, item.title)
     };
   }
 
-  // Second attempt: fetch by ID if slug is numeric
-  if (!isNaN(parseInt(slug))) {
-    const product = await getProductById(parseInt(slug));
+  // Second attempt: check if slug has embedded ID (e.g. product-55 or waterproof-bedsheet-22) or is numeric
+  const matchId = decodedSlug.match(/-(\d+)$/) || decodedSlug.match(/^(\d+)$/);
+  if (matchId) {
+    const id = parseInt(matchId[1], 10);
+    const product = await getProductById(id);
     if (product) return product;
   }
 
-  // Third attempt: fetch all and find by generated slug (for old products without slugs)
+  // Third attempt: fetch all products and find matching slug
   const products = await getProducts();
-  const found = products.find(p => p.slug === slug);
+  const found = products.find(p => p.slug === decodedSlug || p.slug.toLowerCase() === decodedSlug.toLowerCase());
   if (found) return found;
 
-  console.error('Product not found for slug:', slug);
-  return mockProducts.find(p => p.slug === slug);
+  console.error('Product not found for slug:', decodedSlug);
+  return mockProducts.find(p => p.slug === decodedSlug);
 }
 
 export async function getProductById(id: number): Promise<Product | undefined> {

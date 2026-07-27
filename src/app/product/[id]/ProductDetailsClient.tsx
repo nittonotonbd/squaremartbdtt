@@ -193,11 +193,15 @@ export default function ProductDetailsClient({ product }: { product: Product }) 
             }
           ];
 
-          if (product.id === 4 || product.id === 5 || product.title.toLowerCase().includes('waterproof bed cover')) {
+          if (product.id === 4 || product.id === 5) {
             setSizeOptions(fallbackList);
             const current = fallbackList.find(o => o.id === product.id) || fallbackList[0];
             setSelectedProduct(current);
             setActiveImage(current.imageUrl);
+          } else {
+            // For any other product without multi-size variants, keep its own data
+            setSelectedProduct(product);
+            setActiveImage(product.imageUrl);
           }
         }
       } catch (err) {
